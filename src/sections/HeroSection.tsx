@@ -212,7 +212,6 @@ const HeroSection = () => {
             muted
             loop
             playsInline
-            poster={company.heroPoster}
             className="h-full w-full object-cover"
           >
             <source src={company.heroMedia} type="video/mp4" />
