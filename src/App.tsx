@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 
+import IntroLoader from './components/IntroLoader';
 import CustomCursor from './components/CustomCursor';
 import Navigation from './components/Navigation';
 import HeroSection from './sections/HeroSection';
@@ -26,41 +27,50 @@ import './App.css';
 gsap.registerPlugin(ScrollTrigger);
 
 function App() {
+  const [introComplete, setIntroComplete] = useState(false);
   const lenisRef = useRef<Lenis | null>(null);
+  const handleIntroComplete = useCallback(() => setIntroComplete(true), []);
 
   useEffect(() => {
-    // Initialize Lenis smooth scroll
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    });
-    lenisRef.current = lenis;
-
-    // Integrate Lenis with GSAP ScrollTrigger
-    lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000);
-    });
-    gsap.ticker.lagSmoothing(0);
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // Configure ScrollTrigger defaults
     ScrollTrigger.defaults({
       toggleActions: 'play none none reverse',
     });
 
-    // Refresh ScrollTrigger on load
+    // Only initialize Lenis smooth scroll when motion is allowed
+    if (!prefersReduced) {
+      const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      });
+      lenisRef.current = lenis;
+
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0);
+    }
+
     ScrollTrigger.refresh();
 
     return () => {
-      lenis.destroy();
-      gsap.ticker.remove(lenis.raf);
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+        gsap.ticker.remove(lenisRef.current.raf);
+      }
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, []);
 
   return (
     <main className="relative min-h-screen w-full overflow-x-hidden">
+      {/* Intro Loader */}
+      {!introComplete && <IntroLoader onComplete={handleIntroComplete} />}
+
       {/* Custom Cursor */}
       <CustomCursor />
       

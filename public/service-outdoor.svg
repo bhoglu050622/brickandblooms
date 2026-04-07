@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="oBg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e0ddd8"/>
+      <stop offset="40%" stop-color="#eae5dc"/>
+      <stop offset="60%" stop-color="#F5F0E8"/>
+      <stop offset="100%" stop-color="#F5F0E8"/>
+    </linearGradient>
+    <linearGradient id="mutedToVivid" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#999"/>
+      <stop offset="100%" stop-color="#7C8C6E"/>
+    </linearGradient>
+  </defs>
+  <!-- Background with left-muted to right-bright -->
+  <rect width="800" height="400" fill="url(#oBg)"/>
+  <!-- Center transition line -->
+  <line x1="400" y1="30" x2="400" y2="370" stroke="#D4C9B8" stroke-width="1" stroke-dasharray="6 4" opacity="0.5"/>
+  <!-- LEFT SIDE - Muted/gray shapes -->
+  <!-- Muted ground -->
+  <path d="M0 300 Q80 270 160 290 Q240 270 320 285 Q360 280 400 290 L400 400 L0 400Z" fill="#aaa" opacity="0.2"/>
+  <!-- Muted shapes - dead/dormant forms -->
+  <ellipse cx="80" cy="250" rx="30" ry="50" fill="#999" opacity="0.15" transform="rotate(-5 80 250)"/>
+  <ellipse cx="100" cy="240" rx="25" ry="45" fill="#aaa" opacity="0.12" transform="rotate(8 100 240)"/>
+  <circle cx="180" cy="220" r="35" fill="#999" opacity="0.1"/>
+  <ellipse cx="200" cy="210" rx="28" ry="40" fill="#bbb" opacity="0.1" transform="rotate(-12 200 210)"/>
+  <path d="M260 300 Q270 250 280 230 Q285 250 290 300" fill="#999" opacity="0.12"/>
+  <path d="M300 290 Q310 240 315 220 Q320 240 330 290" fill="#aaa" opacity="0.1"/>
+  <!-- Muted circles -->
+  <circle cx="120" cy="160" r="20" fill="none" stroke="#999" stroke-width="1" opacity="0.15"/>
+  <circle cx="280" cy="150" r="15" fill="none" stroke="#aaa" stroke-width="1" opacity="0.12"/>
+  <!-- Transition arrow -->
+  <path d="M360 200 L440 200" fill="none" stroke="#C67D5B" stroke-width="2" opacity="0.4"/>
+  <polygon points="440,195 440,205 452,200" fill="#C67D5B" opacity="0.4"/>
+  <!-- RIGHT SIDE - Vibrant sage/green shapes -->
+  <!-- Vibrant ground -->
+  <path d="M400 290 Q480 265 560 280 Q640 260 720 275 Q760 270 800 280 L800 400 L400 400Z" fill="#7C8C6E" opacity="0.25"/>
+  <!-- Lush plant forms -->
+  <ellipse cx="500" cy="230" rx="35" ry="55" fill="#7C8C6E" opacity="0.4" transform="rotate(-8 500 230)"/>
+  <ellipse cx="525" cy="220" rx="30" ry="50" fill="#8a9a7c" opacity="0.35" transform="rotate(10 525 220)"/>
+  <ellipse cx="510" cy="215" rx="25" ry="45" fill="#7C8C6E" opacity="0.3" transform="rotate(0 510 215)"/>
+  <!-- Flowering shapes -->
+  <circle cx="600" cy="200" r="30" fill="#7C8C6E" opacity="0.3"/>
+  <circle cx="620" cy="190" r="25" fill="#8a9a7c" opacity="0.25"/>
+  <circle cx="610" cy="180" r="8" fill="#C67D5B" opacity="0.4"/>
+  <!-- Tall vibrant plants -->
+  <ellipse cx="680" cy="220" rx="20" ry="55" fill="#7C8C6E" opacity="0.35" transform="rotate(5 680 220)"/>
+  <ellipse cx="700" cy="215" rx="18" ry="50" fill="#8a9a7c" opacity="0.3" transform="rotate(-8 700 215)"/>
+  <ellipse cx="720" cy="230" rx="22" ry="45" fill="#7C8C6E" opacity="0.25" transform="rotate(10 720 230)"/>
+  <!-- Blooms on right -->
+  <circle cx="540" cy="185" r="6" fill="#C67D5B" opacity="0.5"/>
+  <circle cx="690" cy="170" r="5" fill="#C67D5B" opacity="0.4"/>
+  <circle cx="730" cy="190" r="4" fill="#C67D5B" opacity="0.35"/>
+  <!-- Leaf paths on right -->
+  <path d="M560 280 Q575 250 580 230 Q585 250 570 280" fill="#7C8C6E" opacity="0.3"/>
+  <path d="M640 275 Q648 248 652 228 Q658 248 650 275" fill="#8a9a7c" opacity="0.25"/>
+  <!-- Butterflies/life on right side -->
+  <path d="M580 130 Q575 120 585 118 Q590 120 585 130 Q590 120 595 118 Q600 120 595 130" fill="#C67D5B" opacity="0.3"/>
+  <path d="M700 110 Q696 102 703 100 Q707 102 704 110 Q707 102 712 100 Q716 102 712 110" fill="#7C8C6E" opacity="0.25"/>
+</svg>

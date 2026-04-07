@@ -5,49 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface TeamMember {
-  name: string;
-  role: string;
-  kpi: string;
-  kpiDescription: string;
-  image: string;
-  initials: string;
-}
-
-const team: TeamMember[] = [
-  {
-    name: 'Tobias Neumann',
-    role: 'Founder & CEO',
-    kpi: '97%',
-    kpiDescription: 'Projects delivered on time under his oversight.',
-    image: '/team-tobias.jpg',
-    initials: 'TN',
-  },
-  {
-    name: 'Amelia Cross',
-    role: 'Head of Strategy',
-    kpi: '89%',
-    kpiDescription: 'Campaigns hit or exceeded client KPIs.',
-    image: '/team-amelia.jpg',
-    initials: 'AC',
-  },
-  {
-    name: 'Sofia Reyes',
-    role: 'Chief Creative Officer',
-    kpi: '120+',
-    kpiDescription: 'Brand identities launched across industries.',
-    image: '',
-    initials: 'SR',
-  },
-  {
-    name: 'Lucas Marino',
-    role: 'Technical Director',
-    kpi: '3.4x',
-    kpiDescription: 'Faster site performance vs industry average.',
-    image: '',
-    initials: 'LM',
-  },
-];
+import { team } from '@/data/team';
 
 const TeamSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -75,7 +33,7 @@ const TeamSection = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="w-full bg-[#0a0a0a] py-24">
+    <section ref={sectionRef} className="w-full bg-[#1A1A17] py-24">
       <div className="mx-auto max-w-[1400px] px-6 lg:px-12">
         {/* Header */}
         <div className="mb-4">
@@ -92,7 +50,7 @@ const TeamSection = () => {
           </div>
           <div className="hidden md:block">
             <div className="h-10 w-10 rounded-full border border-white/20 flex items-center justify-center">
-              <span className="text-[14px] font-bold text-white/40">C</span>
+              <span className="text-[10px] font-bold text-white/40">B&B</span>
             </div>
           </div>
         </div>
@@ -100,14 +58,27 @@ const TeamSection = () => {
         {/* Team Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {team.map((member, index) => (
-            <div key={index} className="team-item group opacity-0">
+            <div
+              key={index}
+              className="team-item group opacity-0"
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const dx = (e.clientX - (rect.left + rect.width / 2)) / rect.width;
+                const dy = (e.clientY - (rect.top + rect.height / 2)) / rect.height;
+                e.currentTarget.style.transform = `perspective(600px) rotateY(${dx * 5}deg) rotateX(${-dy * 5}deg)`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'perspective(600px) rotateY(0) rotateX(0)';
+              }}
+              style={{ transition: 'transform 0.3s ease-out' }}
+            >
               {/* KPI tag */}
               <div className="mb-3">
-                <span className="text-[10px] font-medium text-coral tracking-[0.1em]">//KPI</span>
+                <span className="text-[10px] font-medium text-sage tracking-[0.1em]">//KPI</span>
               </div>
 
               {/* KPI stat */}
-              <div className="mb-2 text-[36px] md:text-[42px] font-bold leading-none text-white">
+              <div className="mb-2 text-[28px] md:text-[36px] lg:text-[42px] font-bold leading-none text-white">
                 {member.kpi}
               </div>
               <p className="mb-4 text-[11px] leading-relaxed text-white/40">
@@ -119,7 +90,7 @@ const TeamSection = () => {
               <p className="mb-4 text-[11px] text-white/50">{member.role}</p>
 
               {/* Photo */}
-              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a1a1a]">
+              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#2A2A25]">
                 {member.image ? (
                   <img
                     src={member.image}
@@ -141,14 +112,14 @@ const TeamSection = () => {
           <div>
             <p className="text-[14px] leading-relaxed text-white/60">
               Our leadership team involved from{' '}
-              <span className="text-coral font-semibold">first kickoff to final delivery</span>.
+              <span className="text-sage font-semibold">first kickoff to final delivery</span>.
             </p>
             <p className="mt-2 text-[13px] leading-relaxed text-white/40">
               Every milestone checked, every detail reviewed, every client kept in the loop. That's how projects land sharp and on time.
             </p>
           </div>
           <div>
-            <h3 className="mb-2 text-[14px] font-semibold text-white">Discover team Create®</h3>
+            <h3 className="mb-2 text-[14px] font-semibold text-white">Discover team Brick & Blooms</h3>
             <p className="mb-4 text-[12px] leading-relaxed text-white/40">
               Meet the people, culture, and energy that keep our work sharp and our days fun.
             </p>
@@ -156,7 +127,7 @@ const TeamSection = () => {
               href="https://linkedin.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="group inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-coral transition-colors hover:text-coral-hover"
+              className="group inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage transition-colors hover:text-sage-hover"
             >
               Follow us on LinkedIn
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />

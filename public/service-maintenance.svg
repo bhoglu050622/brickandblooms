@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="mBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5F0E8"/>
+      <stop offset="100%" stop-color="#eee8db"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="800" height="400" fill="url(#mBg)"/>
+  <!-- Repeating leaf pattern - Row 1 -->
+  <path d="M80 80 Q100 50 120 80 Q100 95 80 80Z" fill="#7C8C6E" opacity="0.3"/>
+  <path d="M100 80 L100 110" fill="none" stroke="#7C8C6E" stroke-width="1" opacity="0.2"/>
+  <path d="M200 70 Q225 35 250 70 Q225 90 200 70Z" fill="#8a9a7c" opacity="0.25"/>
+  <path d="M225 70 L225 105" fill="none" stroke="#8a9a7c" stroke-width="1" opacity="0.2"/>
+  <path d="M340 85 Q365 50 390 85 Q365 105 340 85Z" fill="#7C8C6E" opacity="0.35"/>
+  <path d="M365 85 L365 120" fill="none" stroke="#7C8C6E" stroke-width="1" opacity="0.2"/>
+  <path d="M480 75 Q500 45 520 75 Q500 90 480 75Z" fill="#8a9a7c" opacity="0.2"/>
+  <path d="M500 75 L500 108" fill="none" stroke="#8a9a7c" stroke-width="1" opacity="0.15"/>
+  <path d="M620 80 Q645 48 670 80 Q645 98 620 80Z" fill="#7C8C6E" opacity="0.3"/>
+  <path d="M645 80 L645 115" fill="none" stroke="#7C8C6E" stroke-width="1" opacity="0.2"/>
+  <!-- Row 2 - offset -->
+  <path d="M140 170 Q165 135 190 170 Q165 190 140 170Z" fill="#7C8C6E" opacity="0.25"/>
+  <path d="M165 170 L165 205" fill="none" stroke="#7C8C6E" stroke-width="1" opacity="0.2"/>
+  <path d="M280 160 Q305 125 330 160 Q305 180 280 160Z" fill="#8a9a7c" opacity="0.3"/>
+  <path d="M305 160 L305 195" fill="none" stroke="#8a9a7c" stroke-width="1" opacity="0.2"/>
+  <path d="M420 175 Q445 140 470 175 Q445 195 420 175Z" fill="#7C8C6E" opacity="0.35"/>
+  <path d="M445 175 L445 210" fill="none" stroke="#7C8C6E" stroke-width="1" opacity="0.2"/>
+  <path d="M560 165 Q580 132 600 165 Q580 182 560 165Z" fill="#8a9a7c" opacity="0.2"/>
+  <path d="M580 165 L580 198" fill="none" stroke="#8a9a7c" stroke-width="1" opacity="0.15"/>
+  <path d="M700 170 Q720 138 740 170 Q720 188 700 170Z" fill="#7C8C6E" opacity="0.28"/>
+  <path d="M720 170 L720 205" fill="none" stroke="#7C8C6E" stroke-width="1" opacity="0.2"/>
+  <!-- Row 3 -->
+  <path d="M60 260 Q85 225 110 260 Q85 280 60 260Z" fill="#8a9a7c" opacity="0.3"/>
+  <path d="M85 260 L85 295" fill="none" stroke="#8a9a7c" stroke-width="1" opacity="0.2"/>
+  <path d="M200 255 Q225 220 250 255 Q225 275 200 255Z" fill="#7C8C6E" opacity="0.35"/>
+  <path d="M225 255 L225 290" fill="none" stroke="#7C8C6E" stroke-width="1" opacity="0.2"/>
+  <path d="M350 265 Q375 230 400 265 Q375 285 350 265Z" fill="#8a9a7c" opacity="0.25"/>
+  <path d="M375 265 L375 300" fill="none" stroke="#8a9a7c" stroke-width="1" opacity="0.18"/>
+  <path d="M500 258 Q525 222 550 258 Q525 278 500 258Z" fill="#7C8C6E" opacity="0.3"/>
+  <path d="M525 258 L525 293" fill="none" stroke="#7C8C6E" stroke-width="1" opacity="0.2"/>
+  <path d="M640 262 Q665 228 690 262 Q665 280 640 262Z" fill="#8a9a7c" opacity="0.22"/>
+  <path d="M665 262 L665 296" fill="none" stroke="#8a9a7c" stroke-width="1" opacity="0.18"/>
+  <!-- Larger featured botanical cluster center -->
+  <path d="M350 190 Q390 130 430 190 Q390 220 350 190Z" fill="#7C8C6E" opacity="0.15"/>
+  <path d="M370 200 Q400 150 430 200 Q400 225 370 200Z" fill="#8a9a7c" opacity="0.12" transform="rotate(30 400 195)"/>
+  <path d="M370 200 Q400 150 430 200 Q400 225 370 200Z" fill="#7C8C6E" opacity="0.1" transform="rotate(-30 400 195)"/>
+  <!-- Scattered small circles (berries/buds) -->
+  <circle cx="130" cy="130" r="4" fill="#C67D5B" opacity="0.3"/>
+  <circle cx="260" cy="120" r="3" fill="#C67D5B" opacity="0.25"/>
+  <circle cx="400" cy="130" r="5" fill="#C67D5B" opacity="0.2"/>
+  <circle cx="540" cy="125" r="3" fill="#C67D5B" opacity="0.3"/>
+  <circle cx="680" cy="135" r="4" fill="#C67D5B" opacity="0.25"/>
+  <circle cx="170" cy="220" r="3" fill="#C67D5B" opacity="0.2"/>
+  <circle cx="320" cy="215" r="4" fill="#C67D5B" opacity="0.25"/>
+  <circle cx="470" cy="225" r="3" fill="#C67D5B" opacity="0.3"/>
+  <circle cx="600" cy="218" r="4" fill="#C67D5B" opacity="0.2"/>
+  <!-- Row 4 partial -->
+  <path d="M130 345 Q155 315 180 345 Q155 362 130 345Z" fill="#7C8C6E" opacity="0.2"/>
+  <path d="M330 350 Q355 318 380 350 Q355 368 330 350Z" fill="#8a9a7c" opacity="0.18"/>
+  <path d="M530 342 Q555 310 580 342 Q555 360 530 342Z" fill="#7C8C6E" opacity="0.22"/>
+  <path d="M720 348 Q740 318 760 348 Q740 365 720 348Z" fill="#8a9a7c" opacity="0.2"/>
+</svg>

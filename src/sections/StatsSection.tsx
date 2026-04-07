@@ -1,28 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { stats } from '@/data/stats';
+import { clientLogos } from '@/data/clientLogos';
 
 gsap.registerPlugin(ScrollTrigger);
-
-interface Stat {
-  value: number;
-  suffix: string;
-  label: string;
-  code: string;
-  barWidth: string;
-}
-
-const stats: Stat[] = [
-  { value: 10000, suffix: '+', label: 'PLANTS INSTALLED', code: '//001', barWidth: '95%' },
-  { value: 50, suffix: '+', label: 'TERRACE & BALCONY GARDENS', code: '//002', barWidth: '80%' },
-  { value: 4, suffix: '+', label: 'YEARS OF DESIGN & EXECUTION EXPERTISE', code: '//003', barWidth: '70%' },
-  { value: 95, suffix: '%', label: 'PROJECT COMPLETION WITHIN TIMELINE', code: '//004', barWidth: '95%' },
-];
-
-const clientLogos = [
-  'Obliqon', 'Lindholm', 'Vornberg', 'Wendrich',
-  'Blackwell', 'Aurelis', 'Madison', 'Morisson',
-];
 
 const AnimatedCounter = ({ value, suffix, shouldAnimate }: { value: number; suffix: string; shouldAnimate: boolean }) => {
   const [count, setCount] = useState(0);
@@ -35,7 +17,7 @@ const AnimatedCounter = ({ value, suffix, shouldAnimate }: { value: number; suff
     const animate = (timestamp: number) => {
       if (!startTime) startTime = timestamp;
       const progress = Math.min((timestamp - startTime) / duration, 1);
-      const easeOut = 1 - Math.pow(1 - progress, 3);
+      const easeOut = progress < 1 ? 1 - Math.pow(1 - progress, 3) * Math.cos(progress * Math.PI * 0.5) : 1;
       setCount(Math.floor(easeOut * value));
       if (progress < 1) requestAnimationFrame(animate);
     };
@@ -86,23 +68,30 @@ const StatsSection = () => {
           scrollTrigger: { trigger: section, start: 'top 70%' },
         }
       );
+
+      // Header entrance
+      gsap.fromTo(
+        section.querySelector('.stats-header'),
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: 'power2.out', scrollTrigger: { trigger: section, start: 'top 85%' } }
+      );
     }, section);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative w-full bg-[#0a0a0a] overflow-hidden">
+    <section ref={sectionRef} className="relative w-full bg-[#1A1A17] overflow-hidden">
       {/* Header area */}
       <div className="relative z-10 mx-auto max-w-[1400px] px-6 lg:px-12 pt-24">
         {/* PERFORMANCE label */}
         <div className="mb-3 flex items-center gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-coral">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-sage">
             PERFORMANCE
           </span>
         </div>
 
-        <div className="flex items-start justify-between mb-8">
+        <div className="stats-header flex items-start justify-between mb-8">
           <div>
             <h2 className="mb-4 text-[32px] font-medium leading-[1.1] tracking-tight text-white md:text-[44px]">
               The proof behind our landscapes
@@ -114,7 +103,7 @@ const StatsSection = () => {
           {/* Logo placeholder */}
           <div className="hidden md:block">
             <div className="h-10 w-10 rounded-full border border-white/20 flex items-center justify-center">
-              <span className="text-[14px] font-bold text-white/40">C</span>
+              <span className="text-[10px] font-bold text-white/40">B&B</span>
             </div>
           </div>
         </div>
@@ -131,7 +120,7 @@ const StatsSection = () => {
                   {index === 0 ? '10+' : index === 1 ? '10%' : index === 2 ? '10' : '10%'}
                 </span>
               </div>
-              <div className="mb-3 text-[48px] font-bold leading-none tracking-tight text-coral md:text-[64px]">
+              <div className="mb-3 text-[32px] md:text-[48px] lg:text-[64px] font-bold leading-none tracking-tight text-sage">
                 <AnimatedCounter value={stat.value} suffix={stat.suffix} shouldAnimate={shouldAnimate} />
               </div>
               
@@ -143,7 +132,7 @@ const StatsSection = () => {
               {/* Progress bar */}
               <div className="mb-2 h-[3px] w-full bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="stat-bar-fill h-full bg-gradient-to-r from-coral to-coral/60 rounded-full"
+                  className="stat-bar-fill h-full bg-gradient-to-r from-sage to-sage/60 rounded-full shadow-[0_0_8px_rgba(124,140,110,0.4)]"
                   style={{ width: '0%' }}
                 />
               </div>
@@ -162,7 +151,7 @@ const StatsSection = () => {
         <div
           className="absolute inset-0"
           style={{
-            background: 'radial-gradient(ellipse at 50% 80%, rgba(255,107,74,0.08) 0%, transparent 60%), radial-gradient(ellipse at 30% 50%, rgba(50,50,80,0.3) 0%, transparent 50%)',
+            background: 'radial-gradient(ellipse at 50% 80%, rgba(124,140,110,0.08) 0%, transparent 60%), radial-gradient(ellipse at 30% 50%, rgba(50,50,80,0.3) 0%, transparent 50%)',
           }}
         />
       </div>
@@ -176,13 +165,13 @@ const StatsSection = () => {
 
           {/* Logo marquee */}
           <div className="overflow-hidden">
-            <div className="flex animate-marquee gap-16 whitespace-nowrap items-center justify-center">
+            <div className="flex animate-marquee gap-10 md:gap-20 whitespace-nowrap items-center justify-center">
               {[...clientLogos, ...clientLogos].map((logo, i) => (
-                <div key={i} className="flex items-center gap-2 shrink-0 opacity-50 hover:opacity-80 transition-opacity">
-                  <div className="h-6 w-6 rounded-full border border-white/30 flex items-center justify-center">
-                    <span className="text-[9px] text-white font-bold">{logo[0]}</span>
+                <div key={i} className="flex items-center gap-3 shrink-0 opacity-50 hover:opacity-80 transition-opacity">
+                  <div className="h-10 w-10 rounded-full border border-white/20 flex items-center justify-center">
+                    <span className="text-[14px] text-white font-bold">{logo[0]}</span>
                   </div>
-                  <span className="text-[14px] font-semibold text-white tracking-wide">{logo}</span>
+                  <span className="text-[13px] md:text-[18px] font-semibold text-white tracking-wide">{logo}</span>
                 </div>
               ))}
             </div>

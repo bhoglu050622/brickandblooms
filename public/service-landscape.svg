@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5F0E8"/>
+      <stop offset="100%" stop-color="#D4C9B8"/>
+    </linearGradient>
+    <linearGradient id="hill1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7C8C6E"/>
+      <stop offset="100%" stop-color="#5e6e53"/>
+    </linearGradient>
+    <linearGradient id="hill2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8a9a7c"/>
+      <stop offset="100%" stop-color="#7C8C6E"/>
+    </linearGradient>
+  </defs>
+  <!-- Sky -->
+  <rect width="800" height="400" fill="url(#sky)"/>
+  <!-- Sun -->
+  <circle cx="620" cy="90" r="50" fill="#C67D5B" opacity="0.7"/>
+  <circle cx="620" cy="90" r="38" fill="#F5F0E8" opacity="0.3"/>
+  <!-- Sun rays -->
+  <circle cx="620" cy="90" r="65" fill="none" stroke="#C67D5B" stroke-width="1" opacity="0.3"/>
+  <circle cx="620" cy="90" r="80" fill="none" stroke="#C67D5B" stroke-width="0.5" opacity="0.2"/>
+  <!-- Distant hills -->
+  <path d="M0 280 Q100 200 200 240 Q300 190 400 230 Q500 180 600 220 Q700 190 800 240 L800 400 L0 400Z" fill="#D4C9B8" opacity="0.6"/>
+  <!-- Mid hills -->
+  <path d="M0 310 Q80 250 180 280 Q280 230 380 270 Q450 240 550 260 Q650 230 750 270 Q780 280 800 290 L800 400 L0 400Z" fill="url(#hill2)" opacity="0.7"/>
+  <!-- Foreground hills -->
+  <path d="M0 340 Q100 290 200 320 Q300 280 420 310 Q520 270 620 300 Q720 280 800 310 L800 400 L0 400Z" fill="url(#hill1)"/>
+  <!-- Closest ground -->
+  <path d="M0 370 Q150 340 300 360 Q450 340 600 355 Q700 345 800 360 L800 400 L0 400Z" fill="#1A1A17" opacity="0.15"/>
+  <!-- Accent plants left -->
+  <ellipse cx="120" cy="330" rx="20" ry="35" fill="#7C8C6E" opacity="0.6" transform="rotate(-10 120 330)"/>
+  <ellipse cx="140" cy="325" rx="18" ry="30" fill="#8a9a7c" opacity="0.5" transform="rotate(8 140 325)"/>
+  <!-- Accent plants right -->
+  <ellipse cx="650" cy="310" rx="15" ry="28" fill="#7C8C6E" opacity="0.5" transform="rotate(-5 650 310)"/>
+  <ellipse cx="670" cy="305" rx="12" ry="25" fill="#C67D5B" opacity="0.3" transform="rotate(12 670 305)"/>
+  <!-- Floating leaf shapes -->
+  <path d="M300 150 Q320 130 340 150 Q320 170 300 150Z" fill="#7C8C6E" opacity="0.2"/>
+  <path d="M480 120 Q495 105 510 120 Q495 135 480 120Z" fill="#C67D5B" opacity="0.15"/>
+</svg>

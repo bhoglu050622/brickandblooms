@@ -36,15 +36,15 @@ const CTASection = () => {
         {/* Stats row */}
         <div className="cta-item flex flex-wrap items-center gap-6 md:gap-12 mb-8 opacity-0">
           <div className="flex items-center gap-2">
-            <Plus className="h-3 w-3 text-coral" />
+            <Plus className="h-3 w-3 text-sage" />
             <span className="text-[13px] font-medium text-black/60">120+ projects delivered</span>
           </div>
           <div className="flex items-center gap-2">
-            <Plus className="h-3 w-3 text-coral" />
+            <Plus className="h-3 w-3 text-sage" />
             <span className="text-[13px] font-medium text-black/60">4+ years landscape expertise</span>
           </div>
           <div className="flex items-center gap-2">
-            <Plus className="h-3 w-3 text-coral" />
+            <Plus className="h-3 w-3 text-sage" />
             <span className="text-[13px] font-medium text-black/60">95% on-time project delivery</span>
           </div>
         </div>
@@ -63,7 +63,7 @@ const CTASection = () => {
               <p className="text-[11px] text-black/40">90% repeat &amp; referral clients</p>
             </div>
             <div className="mt-6">
-              <span className="text-[32px] md:text-[42px] font-bold text-black/10">2021 — 2025</span>
+              <span className="text-[32px] md:text-[42px] font-bold text-black/10">2021 — 2026</span>
             </div>
           </div>
 
@@ -76,7 +76,7 @@ const CTASection = () => {
         </div>
 
         {/* CEO Quote Card */}
-        <div className="cta-item flex flex-col md:flex-row items-center gap-8 rounded-2xl border border-black/10 bg-black/[0.02] p-8 md:p-12 mb-12 opacity-0">
+        <div className="cta-item flex flex-col md:flex-row items-center gap-8 rounded-2xl border border-black/10 bg-black/[0.02] p-8 md:p-12 mb-12 transition-all duration-500 hover:border-sage/20 hover:shadow-lg hover:shadow-sage/5 opacity-0">
           {/* CEO Photo */}
           <div className="shrink-0">
             <div className="relative">
@@ -106,7 +106,7 @@ const CTASection = () => {
         <div className="cta-item flex flex-col sm:flex-row items-center gap-4 opacity-0">
           <a
             href="#contact"
-            className="group flex items-center gap-2 rounded-lg bg-coral px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-coral-hover"
+            className="group flex items-center gap-2 rounded-lg bg-sage px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-white transition-all duration-300 hover:bg-sage-hover hover:shadow-xl hover:shadow-sage/30 hover:scale-[1.02]"
           >
             Book a consultation
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -114,7 +114,7 @@ const CTASection = () => {
 
             <a
               href="#work"
-              className="group flex items-center gap-2 rounded-lg border border-black/20 bg-transparent px-6 py-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-black transition-all hover:border-black/40 hover:bg-black/[0.03]"
+              className="group flex items-center gap-2 rounded-lg border border-black/20 bg-transparent px-6 py-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-black transition-all duration-300 hover:border-black/40 hover:bg-black/[0.03] hover:-translate-y-0.5"
             >
               View recent projects
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

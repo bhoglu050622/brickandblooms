@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="tBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5F0E8"/>
+      <stop offset="100%" stop-color="#e8e0d2"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="800" height="400" fill="url(#tBg)"/>
+  <!-- Balcony railing -->
+  <rect x="100" y="180" width="600" height="8" rx="4" fill="#1A1A17" opacity="0.2"/>
+  <!-- Railing posts -->
+  <rect x="140" y="180" width="4" height="80" rx="2" fill="#1A1A17" opacity="0.15"/>
+  <rect x="240" y="180" width="4" height="80" rx="2" fill="#1A1A17" opacity="0.15"/>
+  <rect x="340" y="180" width="4" height="80" rx="2" fill="#1A1A17" opacity="0.15"/>
+  <rect x="440" y="180" width="4" height="80" rx="2" fill="#1A1A17" opacity="0.15"/>
+  <rect x="540" y="180" width="4" height="80" rx="2" fill="#1A1A17" opacity="0.15"/>
+  <rect x="640" y="180" width="4" height="80" rx="2" fill="#1A1A17" opacity="0.15"/>
+  <rect x="100" y="256" width="600" height="6" rx="3" fill="#1A1A17" opacity="0.15"/>
+  <!-- Terrace floor -->
+  <path d="M50 320 L750 320 L720 400 L80 400Z" fill="#D4C9B8" opacity="0.5"/>
+  <path d="M50 320 L750 320 L750 328 L50 328Z" fill="#C67D5B" opacity="0.3"/>
+  <!-- Hanging pot 1 -->
+  <line x1="200" y1="100" x2="200" y2="160" stroke="#1A1A17" stroke-width="1.5" opacity="0.2"/>
+  <path d="M170 160 Q170 145 200 145 Q230 145 230 160 Q230 180 200 185 Q170 180 170 160Z" fill="#C67D5B" opacity="0.5"/>
+  <!-- Plant in pot 1 -->
+  <ellipse cx="190" cy="138" rx="12" ry="20" fill="#7C8C6E" opacity="0.7" transform="rotate(-20 190 138)"/>
+  <ellipse cx="210" cy="135" rx="10" ry="22" fill="#8a9a7c" opacity="0.6" transform="rotate(15 210 135)"/>
+  <ellipse cx="200" cy="130" rx="8" ry="18" fill="#7C8C6E" opacity="0.5" transform="rotate(0 200 130)"/>
+  <!-- Trailing vine from pot 1 -->
+  <path d="M185 175 Q175 200 180 230" fill="none" stroke="#7C8C6E" stroke-width="2" opacity="0.4"/>
+  <ellipse cx="178" cy="210" rx="6" ry="10" fill="#7C8C6E" opacity="0.3" transform="rotate(-30 178 210)"/>
+  <ellipse cx="182" cy="228" rx="5" ry="8" fill="#8a9a7c" opacity="0.3" transform="rotate(20 182 228)"/>
+  <!-- Hanging pot 2 -->
+  <line x1="400" y1="80" x2="400" y2="140" stroke="#1A1A17" stroke-width="1.5" opacity="0.2"/>
+  <path d="M370 140 Q370 125 400 125 Q430 125 430 140 Q430 160 400 165 Q370 160 370 140Z" fill="#D4C9B8" opacity="0.6"/>
+  <!-- Plant in pot 2 -->
+  <ellipse cx="385" cy="115" rx="14" ry="22" fill="#7C8C6E" opacity="0.6" transform="rotate(-15 385 115)"/>
+  <ellipse cx="415" cy="112" rx="12" ry="25" fill="#7C8C6E" opacity="0.5" transform="rotate(12 415 112)"/>
+  <ellipse cx="400" cy="108" rx="10" ry="20" fill="#8a9a7c" opacity="0.7" transform="rotate(5 400 108)"/>
+  <!-- Trailing vine from pot 2 -->
+  <path d="M415 155 Q425 190 420 230 Q415 250 425 270" fill="none" stroke="#7C8C6E" stroke-width="2" opacity="0.35"/>
+  <ellipse cx="422" cy="200" rx="7" ry="10" fill="#7C8C6E" opacity="0.3" transform="rotate(25 422 200)"/>
+  <ellipse cx="420" cy="245" rx="5" ry="9" fill="#8a9a7c" opacity="0.3" transform="rotate(-15 420 245)"/>
+  <!-- Hanging pot 3 -->
+  <line x1="580" y1="110" x2="580" y2="155" stroke="#1A1A17" stroke-width="1.5" opacity="0.2"/>
+  <path d="M555 155 Q555 142 580 142 Q605 142 605 155 Q605 172 580 176 Q555 172 555 155Z" fill="#C67D5B" opacity="0.4"/>
+  <!-- Plant in pot 3 -->
+  <ellipse cx="570" cy="132" rx="11" ry="18" fill="#7C8C6E" opacity="0.65" transform="rotate(-10 570 132)"/>
+  <ellipse cx="590" cy="128" rx="13" ry="20" fill="#8a9a7c" opacity="0.55" transform="rotate(18 590 128)"/>
+  <!-- Floor pots -->
+  <rect x="280" y="330" width="40" height="50" rx="6" fill="#C67D5B" opacity="0.4"/>
+  <ellipse cx="300" cy="318" rx="18" ry="28" fill="#7C8C6E" opacity="0.6" transform="rotate(-8 300 318)"/>
+  <ellipse cx="310" cy="312" rx="14" ry="24" fill="#8a9a7c" opacity="0.5" transform="rotate(10 310 312)"/>
+  <rect x="500" y="335" width="35" height="45" rx="5" fill="#D4C9B8" opacity="0.5"/>
+  <ellipse cx="517" cy="322" rx="16" ry="25" fill="#7C8C6E" opacity="0.55" transform="rotate(5 517 322)"/>
+  <!-- Decorative dots -->
+  <circle cx="100" cy="60" r="3" fill="#C67D5B" opacity="0.2"/>
+  <circle cx="700" cy="50" r="4" fill="#7C8C6E" opacity="0.2"/>
+  <circle cx="650" cy="80" r="2" fill="#C67D5B" opacity="0.15"/>
+</svg>

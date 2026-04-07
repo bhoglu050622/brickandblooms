@@ -17,7 +17,7 @@ const CustomCursor = () => {
     gsap.to(cursor, {
       width: hovering ? 48 : 8,
       height: hovering ? 48 : 8,
-      backgroundColor: hovering ? 'rgba(255, 107, 74, 0.2)' : 'rgba(255, 107, 74, 0.6)',
+      backgroundColor: hovering ? 'rgba(124, 140, 110, 0.2)' : 'rgba(124, 140, 110, 0.6)',
       duration: 0.2,
       ease: 'power2.out',
     });
@@ -112,7 +112,10 @@ const CustomCursor = () => {
     };
   }, [updateHoverState]);
 
-  if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) {
+  if (typeof window !== 'undefined' && (
+    window.matchMedia('(pointer: coarse)').matches ||
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )) {
     return null;
   }
 
@@ -124,7 +127,7 @@ const CustomCursor = () => {
         style={{
           width: 8,
           height: 8,
-          backgroundColor: 'rgba(255, 107, 74, 0.6)',
+          backgroundColor: 'rgba(124, 140, 110, 0.6)',
         }}
       />
       <div

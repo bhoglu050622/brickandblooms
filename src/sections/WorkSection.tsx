@@ -1,111 +1,130 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { projects } from '@/data/projects';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface Project {
-  id: number;
-  title: string;
-  subtitle: string;
-  image: string;
-  logo: string;
-  tech: string[];
-  year: string;
-}
-
-const projects: Project[] = [
-  {
-    id: 1,
-    title: 'Aurelis Beach Resort',
-    subtitle: 'Hospitality branding and website',
-    image: '/project-aurelis.jpg',
-    logo: 'aurelis',
-    tech: ['Next.js', 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'Cloudflare CDN'],
-    year: '2025',
-  },
-  {
-    id: 2,
-    title: 'Blackwell Motors',
-    subtitle: 'Automotive digital transformation',
-    image: '/project-blackwell.jpg',
-    logo: 'blackwell',
-    tech: ['React', 'WebGL', 'Node.js', 'AWS Lambda', 'OpenAI Embeddings'],
-    year: '2025',
-  },
-  {
-    id: 3,
-    title: 'Aspen® 877',
-    subtitle: 'E-Mobility brand launch',
-    image: '/project-aspen.jpg',
-    logo: 'aspen',
-    tech: ['Framer', 'Next.js', 'GSAP', 'WebGL', 'Meta Ads integration'],
-    year: '2025',
-  },
-];
-
 const BrandLogo = ({ name }: { name: string }) => {
-  const logos: Record<string, React.ReactNode> = {
-    aurelis: (
-      <div className="flex items-center gap-1.5">
-        <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center">
-          <span className="text-[8px] font-bold text-white">A</span>
-        </div>
-        <span className="text-[13px] font-semibold text-white/90 tracking-wide">aurelis</span>
-        <span className="text-[7px] text-white/50 -mt-1">beach<br/>resort</span>
-      </div>
-    ),
-    blackwell: (
-      <div className="flex items-center gap-1.5">
-        <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center">
-          <span className="text-[8px] font-bold text-white">B</span>
-        </div>
-        <span className="text-[13px] font-semibold text-white/90 tracking-wide">Blackwell</span>
-      </div>
-    ),
-    aspen: (
-      <div className="flex items-center gap-1.5">
-        <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center">
-          <span className="text-[8px] font-bold text-white">A</span>
-        </div>
-        <span className="text-[13px] font-semibold text-white/90 tracking-wide">Aspen® 877</span>
-      </div>
-    ),
+  const initial = name.charAt(0).toUpperCase();
+  const displayName: Record<string, string> = {
+    greenview: 'Greenview Terrace',
+    oasis: 'Oasis Courtyard',
+    villa: 'Villa Serenity',
   };
-  return <>{logos[name]}</>;
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="h-5 w-5 rounded-full bg-white/20 flex items-center justify-center">
+        <span className="text-[8px] font-bold text-white">{initial}</span>
+      </div>
+      <span className="text-[13px] font-semibold text-white/90 tracking-wide">
+        {displayName[name] || name}
+      </span>
+    </div>
+  );
 };
 
 const WorkSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const [activeCard, setActiveCard] = useState(0);
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        section.querySelectorAll('.project-card'),
-        { y: 80, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.9,
-          stagger: 0.2,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top 70%',
-          },
-        }
-      );
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    if (prefersReduced) {
+      section.querySelectorAll('.project-card').forEach((card) => {
+        gsap.set(card, { opacity: 1, y: 0, filter: 'none', transform: 'none' });
+      });
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      const cards = section.querySelectorAll('.project-card');
+
+      // Progressive tilt — each card tilts more than the last, like falling dominoes
+      cards.forEach((card, i) => {
+        const direction = i % 2 === 0 ? -1 : 1;
+        const tiltAmount = 3 + i * 2; // 3°, 5°, 7° — increases per card
+
+        // Reveal: card tilts in from a heavy lean, straightens as it enters focus
+        gsap.fromTo(
+          card,
+          {
+            opacity: 0,
+            y: 80,
+            rotateZ: direction * tiltAmount,
+            rotateX: 2,
+            filter: 'blur(8px)',
+            scale: 0.93,
+          },
+          {
+            opacity: 1,
+            y: 0,
+            rotateZ: 0,
+            rotateX: 0,
+            filter: 'blur(0px)',
+            scale: 1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top 95%',
+              end: 'top 45%',
+              scrub: 0.5,
+            },
+          }
+        );
+
+        // Scroll-out: card falls away as next one comes in
+        gsap.to(card, {
+          opacity: 0.15,
+          y: -30,
+          rotateZ: direction * -1.5,
+          scale: 0.98,
+          scrollTrigger: {
+            trigger: card,
+            start: 'bottom 40%',
+            end: 'bottom 10%',
+            scrub: 0.5,
+          },
+        });
+      });
+
+      // Active card tracking for progress indicator
+      cards.forEach((card, i) => {
+        ScrollTrigger.create({
+          trigger: card,
+          start: 'top 60%',
+          end: 'bottom 40%',
+          onEnter: () => setActiveCard(i),
+          onEnterBack: () => setActiveCard(i),
+        });
+      });
+
+      // Parallax on project images (deep layer)
       section.querySelectorAll('.project-image').forEach((img) => {
         gsap.to(img, {
-          y: '-15%',
+          y: '-14%',
           ease: 'none',
           scrollTrigger: {
             trigger: img.parentElement,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1,
+          },
+        });
+      });
+
+      // Content overlay parallax (shallow layer — moves slower than image)
+      section.querySelectorAll('.project-content').forEach((content) => {
+        gsap.to(content, {
+          y: '-4%',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: content.closest('.project-card'),
             start: 'top bottom',
             end: 'bottom top',
             scrub: 1,
@@ -118,17 +137,35 @@ const WorkSection = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} id="work" className="w-full bg-[#0a0a0a] py-8">
+    <section ref={sectionRef} id="work" className="w-full bg-[#1A1A17] py-16">
       <div className="mx-auto max-w-[1400px] px-6 lg:px-12">
-        {/* Projects - no header, projects flow directly */}
-        <div className="space-y-6">
+        {/* Section header */}
+        <div className="mb-6 flex items-center gap-3">
+          <div className="h-px w-12 bg-white/20" />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/40">
+            SELECTED WORK
+          </span>
+        </div>
+
+        {/* Featured Projects */}
+        <div className="space-y-12" style={{ perspective: '1200px', perspectiveOrigin: '50% 50%' }}>
           {projects.map((project) => (
             <div
               key={project.id}
-              className="project-card group relative cursor-pointer overflow-hidden rounded-2xl opacity-0"
+              className="project-card group relative cursor-pointer rounded-2xl opacity-0"
+              style={{ willChange: 'transform, filter', transformStyle: 'preserve-3d' }}
+              onMouseMove={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const dx = e.clientX - (rect.left + rect.width / 2);
+                const dy = e.clientY - (rect.top + rect.height / 2);
+                gsap.to(e.currentTarget, { x: dx * 0.03, y: dy * 0.03, rotateY: dx * 0.01, rotateX: -dy * 0.01, duration: 0.3, ease: 'power2.out' });
+              }}
+              onMouseLeave={(e) => {
+                gsap.to(e.currentTarget, { x: 0, y: 0, rotateY: 0, rotateX: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+              }}
             >
               {/* Full width image with parallax */}
-              <div className="relative aspect-[21/9] w-full overflow-hidden">
+              <div className="relative aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden rounded-2xl">
                 <div className="project-image absolute inset-0 h-[130%] w-full">
                   <img
                     src={project.image}
@@ -136,59 +173,64 @@ const WorkSection = () => {
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
               </div>
 
               {/* Content overlay */}
-              <div className="absolute inset-0 flex flex-col justify-between p-6 md:p-10">
-                {/* Top - Brand Logo */}
-                <div>
+              <div className="project-content absolute inset-0 flex flex-col justify-between p-6 md:p-10">
+                {/* Top - Brand Logo + Year */}
+                <div className="flex items-start justify-between">
                   <BrandLogo name={project.logo} />
+                  <span className="text-[10px] font-medium text-white/40 tracking-wider">
+                    {project.year}
+                  </span>
                 </div>
 
-                {/* Center - Title & Subtitle */}
-                <div className="flex flex-1 items-end justify-between">
-                  <div className="flex-1">
-                    {/* Tech stack on left */}
-                    <div className="hidden md:flex flex-col gap-1 mb-4">
-                      <div className="flex flex-wrap gap-x-3 gap-y-1">
-                        {project.tech.map((tech, i) => (
-                          <span
-                            key={i}
-                            className="text-[10px] font-medium text-white/50 tracking-wider"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+                {/* Bottom - Title, Subtitle, Tech */}
+                <div>
+                  {/* Tech stack */}
+                  <div className="hidden md:flex flex-wrap gap-x-3 gap-y-1 mb-3">
+                    {project.tech.map((tech, i) => (
+                      <span
+                        key={i}
+                        className="text-[10px] font-medium text-white/40 tracking-wider"
+                      >
+                        {tech}
+                      </span>
+                    ))}
                   </div>
 
-                  <div className="text-center flex-1">
-                    <h3 className="mb-2 text-[28px] sm:text-[36px] md:text-[48px] font-bold text-white transition-colors duration-300 group-hover:text-coral leading-tight">
-                      {project.title}
-                    </h3>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/50">
-                      {project.subtitle}
-                    </p>
-                  </div>
-
-                  <div className="flex-1 text-right">
-                    <span className="text-[11px] font-medium text-white/40">
-                      YR/<br/>{project.year}
-                    </span>
-                  </div>
+                  <h3 className="mb-1 text-[32px] sm:text-[40px] md:text-[56px] font-bold text-white transition-colors duration-300 group-hover:text-sage leading-[1.05]">
+                    {project.title}
+                  </h3>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/50">
+                    {project.subtitle}
+                  </p>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
+        {/* Progress indicator */}
+        <div className="mt-6 flex items-center justify-center gap-2">
+          {projects.map((_, i) => (
+            <div
+              key={i}
+              className="h-1 rounded-full transition-all duration-500"
+              style={{
+                width: i === activeCard ? '32px' : '8px',
+                backgroundColor: i === activeCard ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.2)',
+              }}
+            />
+          ))}
+        </div>
+
         {/* More Projects Button */}
-        <div className="mt-10 flex items-center justify-between">
+        <div className="mt-12 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-px w-12 bg-white/20" />
-            <span className="text-[11px] font-medium text-white/40">2017-2025</span>
+            <span className="text-[11px] font-medium text-white/40">2021 — 2026</span>
           </div>
 
           <a

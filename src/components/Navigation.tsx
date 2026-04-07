@@ -1,26 +1,23 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowUpRight, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import gsap from 'gsap';
 
+const navItems = [
+  { label: 'Projects', href: '#work' },
+  { label: 'Services', href: '#studio' },
+  { label: 'Insights', href: '#whispers' },
+  { label: 'Contact', href: '#contact' },
+];
+
 const Navigation = () => {
-  const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const bubbleRef = useRef<HTMLElement>(null);
   const mobileLinksRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 200);
-
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      clearTimeout(timer);
-    };
+    const timer = setTimeout(() => setVisible(true), 300);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -30,8 +27,8 @@ const Navigation = () => {
       if (links) {
         gsap.fromTo(
           links,
-          { y: 40, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, stagger: 0.08, ease: 'power2.out', delay: 0.2 }
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.4, stagger: 0.06, ease: 'power2.out', delay: 0.15 }
         );
       }
     } else {
@@ -50,118 +47,84 @@ const Navigation = () => {
 
   return (
     <>
+      {/* Floating Bubble Nav — iOS Dynamic Island style */}
       <nav
-        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-500 ${
-          scrolled
-            ? 'bg-[#0a0a0a]/90 backdrop-blur-xl'
-            : 'bg-transparent'
+        ref={bubbleRef}
+        className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-700 ease-out ${
+          visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'
         }`}
       >
-        <div className="mx-auto flex h-[64px] max-w-[1400px] items-center justify-between px-6 lg:px-12">
-          {/* Left side - Logo */}
-          <div
-            className={`flex items-center transition-all duration-500 ${
-              visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-            }`}
+        <div className="flex items-center gap-1 rounded-full bg-[#1A1A17]/80 backdrop-blur-2xl border border-white/10 px-2 py-1.5 shadow-2xl shadow-black/30 max-w-[95vw]">
+          {/* Logo pill */}
+          <a
+            href="#"
+            onClick={(e) => handleNavClick(e, '#')}
+            className="flex items-center rounded-full bg-sage/15 px-4 py-2 transition-all duration-300 hover:bg-sage/25 hover:scale-105"
           >
-            <a href="#" className="flex items-center" onClick={(e) => handleNavClick(e, '#')}>
-              <span className="text-[22px] font-bold tracking-tight text-coral">Brick &amp; Blooms</span>
-            </a>
+            <span className="text-[13px] font-bold tracking-tight text-sage">B&B</span>
+          </a>
+
+          {/* Desktop nav links */}
+          <div className="hidden md:flex items-center gap-0.5">
+            {navItems.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={(e) => handleNavClick(e, item.href)}
+                className="rounded-full px-4 py-2 text-[12px] font-medium text-white/70 transition-all duration-300 hover:bg-white/10 hover:text-white relative after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:h-0.5 after:w-0 after:bg-sage after:transition-all after:duration-300 hover:after:w-4 after:rounded-full"
+              >
+                {item.label}
+              </a>
+            ))}
           </div>
 
-          {/* Center - Nav Links (Desktop) */}
-          <div
-            className={`hidden items-center gap-8 md:flex transition-all duration-500 delay-100 ${
-              visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-            }`}
+          {/* CTA pill */}
+          <a
+            href="#contact"
+            onClick={(e) => handleNavClick(e, '#contact')}
+            className="hidden md:flex items-center rounded-full bg-sage px-4 py-2 text-[12px] font-semibold text-white transition-colors duration-200 hover:bg-sage-hover"
           >
-            <a
-              href="#work"
-              onClick={(e) => handleNavClick(e, '#work')}
-              className="group relative flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.08em] text-white/80 transition-all duration-200 hover:text-white"
-            >
-              Projects
-              <span className="flex h-4 min-w-[14px] items-center justify-center rounded-[3px] bg-white px-1 text-[9px] font-bold text-black animate-pulse-badge">
-                5
-              </span>
-            </a>
-            <a
-              href="#studio"
-              onClick={(e) => handleNavClick(e, '#studio')}
-              className="text-[12px] font-medium uppercase tracking-[0.08em] text-white/80 transition-all duration-200 hover:text-white"
-            >
-              Services
-            </a>
-            <a
-              href="#whispers"
-              onClick={(e) => handleNavClick(e, '#whispers')}
-              className="group relative flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.08em] text-white/80 transition-all duration-200 hover:text-white"
-            >
-              Insights
-              <span className="flex h-4 min-w-[14px] items-center justify-center rounded-[3px] bg-white px-1 text-[9px] font-bold text-black animate-pulse-badge">
-                7
-              </span>
-            </a>
-          </div>
+            Get a Quote
+          </a>
 
-          {/* Right side - Contact + Mobile Toggle */}
-          <div
-            className={`flex items-center gap-4 transition-all duration-500 delay-200 ${
-              visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'
-            }`}
+          {/* Mobile toggle */}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden flex items-center justify-center rounded-full w-9 h-9 text-white/70 hover:bg-white/10 transition-colors"
+            aria-label="Toggle menu"
           >
-            <a
-              href="#contact"
-              onClick={(e) => handleNavClick(e, '#contact')}
-              className="group hidden md:flex items-center gap-1.5 text-[12px] font-medium uppercase tracking-[0.08em] text-white/80 transition-all duration-200 hover:text-white"
-            >
-              Let’s talk
-              <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </a>
-
-            {/* Mobile Hamburger */}
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="md:hidden flex items-center justify-center w-10 h-10 text-white"
-              aria-label="Toggle menu"
-            >
-              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
-          </div>
+            {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </button>
         </div>
       </nav>
 
       {/* Mobile Menu Overlay */}
       <div
-        ref={mobileMenuRef}
-        className={`fixed inset-0 z-40 bg-[#0a0a0a] transition-all duration-500 md:hidden ${
+        className={`fixed inset-0 z-40 bg-[#1A1A17]/95 backdrop-blur-xl transition-all duration-400 md:hidden ${
           mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
         <div
           ref={mobileLinksRef}
-          className="flex flex-col items-center justify-center h-full gap-8 pt-16"
+          className="flex flex-col items-center justify-center h-full gap-6"
         >
-          {[
-            { label: 'Projects', href: '#work', badge: '5' },
-            { label: 'Services', href: '#studio' },
-            { label: 'Insights', href: '#whispers', badge: '7' },
-            { label: 'Let’s talk', href: '#contact' },
-          ].map((link) => (
+          {navItems.map((link) => (
             <a
               key={link.label}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className="mobile-link flex items-center gap-3 text-[32px] font-bold uppercase tracking-tight text-white opacity-0"
+              className="mobile-link text-[22px] md:text-[28px] font-bold uppercase tracking-tight text-white opacity-0 transition-colors hover:text-sage"
             >
               {link.label}
-              {link.badge && (
-                <span className="flex h-6 min-w-[24px] items-center justify-center rounded bg-white px-2 text-[12px] font-bold text-black">
-                  {link.badge}
-                </span>
-              )}
             </a>
           ))}
+          <a
+            href="#contact"
+            onClick={(e) => handleNavClick(e, '#contact')}
+            className="mobile-link mt-4 rounded-full bg-sage px-8 py-3 text-[14px] font-semibold text-white opacity-0 transition-colors hover:bg-sage-hover"
+          >
+            Get a Quote
+          </a>
         </div>
       </div>
     </>

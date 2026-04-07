@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 600">
+  <defs>
+    <linearGradient id="p1Sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#C67D5B" stop-opacity="0.3"/>
+      <stop offset="40%" stop-color="#F5F0E8"/>
+      <stop offset="100%" stop-color="#ede8dc"/>
+    </linearGradient>
+    <linearGradient id="p1Green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7C8C6E"/>
+      <stop offset="100%" stop-color="#5e6e53"/>
+    </linearGradient>
+  </defs>
+  <!-- Warm sky -->
+  <rect width="1400" height="600" fill="url(#p1Sky)"/>
+  <!-- Warm sun glow -->
+  <circle cx="1050" cy="100" r="80" fill="#C67D5B" opacity="0.15"/>
+  <circle cx="1050" cy="100" r="55" fill="#C67D5B" opacity="0.2"/>
+  <circle cx="1050" cy="100" r="35" fill="#F5F0E8" opacity="0.4"/>
+  <!-- City skyline silhouette at bottom -->
+  <path d="M0 500 L0 440 L40 440 L40 400 L80 400 L80 420 L120 420 L120 380 L150 380 L150 360 L170 360 L170 380 L200 380 L200 410 L240 410 L240 370 L260 370 L260 350 L280 350 L280 370 L300 370 L300 390 L340 390 L340 350 L360 350 L360 330 L380 330 L380 310 L400 310 L400 330 L420 330 L420 360 L460 360 L460 380 L500 380 L500 340 L520 340 L520 300 L540 300 L540 280 L560 280 L560 300 L580 300 L580 340 L600 340 L600 370 L640 370 L640 390 L680 390 L680 360 L700 360 L700 340 L720 340 L720 320 L740 320 L740 340 L780 340 L780 380 L820 380 L820 400 L860 400 L860 370 L880 370 L880 350 L900 350 L900 380 L940 380 L940 410 L980 410 L980 390 L1000 390 L1000 370 L1020 370 L1020 400 L1060 400 L1060 420 L1100 420 L1100 400 L1140 400 L1140 380 L1160 380 L1160 410 L1200 410 L1200 430 L1240 430 L1240 410 L1280 410 L1280 440 L1320 440 L1320 460 L1400 460 L1400 500 Z" fill="#1A1A17" opacity="0.15"/>
+  <!-- Building windows (tiny light dots) -->
+  <rect x="155" y="365" width="8" height="8" fill="#F5F0E8" opacity="0.3"/>
+  <rect x="265" y="355" width="8" height="8" fill="#F5F0E8" opacity="0.25"/>
+  <rect x="365" y="315" width="8" height="8" fill="#F5F0E8" opacity="0.3"/>
+  <rect x="385" y="335" width="8" height="8" fill="#F5F0E8" opacity="0.2"/>
+  <rect x="525" y="305" width="8" height="8" fill="#F5F0E8" opacity="0.3"/>
+  <rect x="545" y="285" width="8" height="8" fill="#F5F0E8" opacity="0.25"/>
+  <rect x="725" y="325" width="8" height="8" fill="#F5F0E8" opacity="0.3"/>
+  <rect x="885" y="355" width="8" height="8" fill="#F5F0E8" opacity="0.2"/>
+  <rect x="1005" y="375" width="8" height="8" fill="#F5F0E8" opacity="0.25"/>
+  <rect x="1145" y="385" width="8" height="8" fill="#F5F0E8" opacity="0.3"/>
+  <!-- Rooftop garden level -->
+  <rect x="100" y="430" width="1200" height="12" rx="2" fill="#D4C9B8" opacity="0.4"/>
+  <!-- Lush rooftop greenery - large organic forms -->
+  <!-- Cluster 1 - left -->
+  <ellipse cx="200" cy="390" rx="50" ry="70" fill="#7C8C6E" opacity="0.45" transform="rotate(-5 200 390)"/>
+  <ellipse cx="240" cy="380" rx="45" ry="65" fill="#8a9a7c" opacity="0.4" transform="rotate(10 240 380)"/>
+  <ellipse cx="170" cy="395" rx="35" ry="55" fill="#7C8C6E" opacity="0.35" transform="rotate(-12 170 395)"/>
+  <ellipse cx="220" cy="370" rx="30" ry="50" fill="#6b7a5e" opacity="0.3"/>
+  <!-- Cluster 2 - center left -->
+  <ellipse cx="420" cy="380" rx="55" ry="75" fill="#7C8C6E" opacity="0.4" transform="rotate(5 420 380)"/>
+  <ellipse cx="460" cy="370" rx="50" ry="70" fill="#8a9a7c" opacity="0.35" transform="rotate(-8 460 370)"/>
+  <ellipse cx="400" cy="385" rx="40" ry="60" fill="#7C8C6E" opacity="0.3" transform="rotate(15 400 385)"/>
+  <!-- Tall tree form center -->
+  <ellipse cx="650" cy="340" rx="45" ry="90" fill="#7C8C6E" opacity="0.45"/>
+  <ellipse cx="680" cy="335" rx="40" ry="85" fill="#8a9a7c" opacity="0.35" transform="rotate(5 680 335)"/>
+  <ellipse cx="630" cy="350" rx="35" ry="75" fill="#6b7a5e" opacity="0.3" transform="rotate(-5 630 350)"/>
+  <!-- Cluster 3 - center right -->
+  <ellipse cx="860" cy="375" rx="50" ry="70" fill="#7C8C6E" opacity="0.4" transform="rotate(-10 860 375)"/>
+  <ellipse cx="900" cy="370" rx="45" ry="65" fill="#8a9a7c" opacity="0.35" transform="rotate(8 900 370)"/>
+  <ellipse cx="840" cy="385" rx="35" ry="55" fill="#7C8C6E" opacity="0.3"/>
+  <!-- Cluster 4 - right -->
+  <ellipse cx="1100" cy="385" rx="55" ry="65" fill="#7C8C6E" opacity="0.4" transform="rotate(5 1100 385)"/>
+  <ellipse cx="1140" cy="378" rx="45" ry="60" fill="#8a9a7c" opacity="0.35" transform="rotate(-10 1140 378)"/>
+  <ellipse cx="1070" cy="390" rx="40" ry="55" fill="#6b7a5e" opacity="0.3"/>
+  <!-- Flower/bloom accents -->
+  <circle cx="250" cy="345" r="8" fill="#C67D5B" opacity="0.5"/>
+  <circle cx="290" cy="360" r="6" fill="#C67D5B" opacity="0.4"/>
+  <circle cx="450" cy="340" r="7" fill="#C67D5B" opacity="0.45"/>
+  <circle cx="680" cy="295" r="9" fill="#C67D5B" opacity="0.4"/>
+  <circle cx="880" cy="340" r="6" fill="#C67D5B" opacity="0.45"/>
+  <circle cx="1110" cy="350" r="8" fill="#C67D5B" opacity="0.4"/>
+  <circle cx="1160" cy="340" r="5" fill="#C67D5B" opacity="0.35"/>
+  <!-- Soft cloud shapes -->
+  <ellipse cx="300" cy="80" rx="80" ry="25" fill="#F5F0E8" opacity="0.5"/>
+  <ellipse cx="350" cy="75" rx="60" ry="20" fill="#F5F0E8" opacity="0.4"/>
+  <ellipse cx="700" cy="60" rx="90" ry="22" fill="#F5F0E8" opacity="0.35"/>
+  <!-- Ground/planter base -->
+  <rect x="0" y="440" width="1400" height="160" fill="#D4C9B8" opacity="0.25"/>
+  <path d="M0 440 Q350 430 700 440 Q1050 450 1400 440 L1400 600 L0 600Z" fill="#1A1A17" opacity="0.05"/>
+</svg>

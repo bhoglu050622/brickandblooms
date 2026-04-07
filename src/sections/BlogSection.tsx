@@ -5,63 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-interface BlogPost {
-  title: string;
-  excerpt: string;
-  image: string;
-  author: string;
-  authorRole: string;
-  authorInitials: string;
-  date: string;
-}
-
-const posts: BlogPost[] = [
-  {
-    title: 'Rethinking Product Design with Intelligence',
-    excerpt: 'A SaaS product team approached us with an AI add-on. The challenge was to rethink AI not as a widget but as a foundation for smarter systems.',
-    image: '/blog-ai-design.jpg',
-    author: 'Lucas Marino',
-    authorRole: 'Technical Director',
-    authorInitials: 'LM',
-    date: 'Jul 30, 2025',
-  },
-  {
-    title: 'Digital Identities Across Cultures',
-    excerpt: 'Numeriq approached us to redefine their online presence. The challenge was balancing their street-level origins with their luxury aspirations.',
-    image: '/blog-digital-identity.jpg',
-    author: 'Edward Bright',
-    authorRole: 'Marketing Lead',
-    authorInitials: 'EB',
-    date: 'Jul 25, 2025',
-  },
-  {
-    title: 'Architecture in the Digital Age',
-    excerpt: 'An architecture studio wanted its online presence to feel as ambitious as its buildings. The challenge was to move beyond static portfolios and reflect authority and vision.',
-    image: '/blog-architecture.jpg',
-    author: 'Mark Miller',
-    authorRole: 'Creative Lead',
-    authorInitials: 'MM',
-    date: 'Jul 20, 2025',
-  },
-  {
-    title: 'The Future of E-Mobility Marketing from Lindholm',
-    excerpt: 'Lindholm launched Aspen® 877, a new e-bike. The challenge was positioning it as both a lifestyle product and a piece of cutting-edge mobility tech.',
-    image: '/blog-emobility.jpg',
-    author: 'Matthew Parker',
-    authorRole: 'Head of Product',
-    authorInitials: 'MP',
-    date: 'Jul 15, 2025',
-  },
-  {
-    title: 'How Automotive Brands Win Online',
-    excerpt: 'An automotive brand asked us to build a digital showroom. The challenge was giving customers an online experience that could rival the thrill of being behind the wheel.',
-    image: '/blog-automotive.jpg',
-    author: 'Jordan Ellis',
-    authorRole: 'UX Strategist',
-    authorInitials: 'JE',
-    date: 'Dec 7, 2025',
-  },
-];
+import { posts } from '@/data/blog';
 
 const BlogSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -106,7 +50,7 @@ const BlogSection = () => {
           </div>
           <div className="hidden md:block">
             <div className="h-10 w-10 rounded-full border border-black/20 flex items-center justify-center">
-              <span className="text-[14px] font-bold text-black/30">C</span>
+              <span className="text-[10px] font-bold text-black/30">B&B</span>
             </div>
           </div>
         </div>
@@ -124,15 +68,15 @@ const BlogSection = () => {
             </p>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Plus className="h-3 w-3 text-coral" />
+                <Plus className="h-3 w-3 text-sage" />
                 <span className="text-[11px] text-black/50">Studio projects and case studies</span>
               </div>
               <div className="flex items-center gap-2">
-                <Plus className="h-3 w-3 text-coral" />
+                <Plus className="h-3 w-3 text-sage" />
                 <span className="text-[11px] text-black/50">Notes on design and process</span>
               </div>
               <div className="flex items-center gap-2">
-                <Plus className="h-3 w-3 text-coral" />
+                <Plus className="h-3 w-3 text-sage" />
                 <span className="text-[11px] text-black/50">Ideas, insights, and inspiration</span>
               </div>
             </div>
@@ -140,7 +84,7 @@ const BlogSection = () => {
 
           {/* Featured post */}
           <div className="lg:col-span-2 group cursor-pointer">
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-[#1a1a1a]">
+            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-[#2A2A25]">
               <img
                 src={posts[0].image}
                 alt={posts[0].title}
@@ -170,7 +114,7 @@ const BlogSection = () => {
         {/* Post grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           {posts.slice(1).map((post, i) => (
-            <div key={i} className="blog-item group cursor-pointer opacity-0">
+            <div key={i} className="blog-item group cursor-pointer opacity-0 transition-transform duration-300 hover:-translate-y-1">
               <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-[#f0f0f0] mb-3">
                 <img
                   src={post.image}
@@ -186,7 +130,7 @@ const BlogSection = () => {
                 <span className="text-[10px] text-black/30">{post.authorRole}</span>
               </div>
               <span className="text-[10px] text-black/30 mb-1 block">{post.date}</span>
-              <h4 className="mb-1 text-[14px] font-semibold text-black leading-tight group-hover:text-coral transition-colors">
+              <h4 className="mb-1 text-[14px] font-semibold text-black leading-tight group-hover:text-sage transition-colors">
                 {post.title}
               </h4>
               <p className="text-[11px] text-black/40 line-clamp-2">

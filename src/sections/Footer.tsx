@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUp, ArrowRight } from 'lucide-react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const Footer = () => {
   const circleRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLSpanElement>(null);
   const [email, setEmail] = useState('');
 
   useEffect(() => {
@@ -14,6 +18,15 @@ const Footer = () => {
         repeat: -1,
         ease: 'none',
       });
+    }
+
+    if (logoRef.current) {
+      gsap.fromTo(logoRef.current,
+        { y: -40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, ease: 'bounce.out',
+          scrollTrigger: { trigger: logoRef.current, start: 'top 85%' }
+        }
+      );
     }
   }, []);
 
@@ -32,9 +45,6 @@ const Footer = () => {
   const legalLinks = [
     { label: 'TERMS OF SERVICE', href: '#' },
     { label: 'PRIVACY POLICY', href: '#' },
-    { label: 'DISCLAIMER', href: '#' },
-    { label: '404', href: '#' },
-    { label: 'MORE TEMPLATES', href: '#' },
   ];
 
   const socialLinks = [
@@ -66,11 +76,11 @@ const Footer = () => {
                   placeholder="Enter Your Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 rounded-lg border border-black/15 bg-transparent px-4 py-3 text-[13px] text-black placeholder:text-black/30 outline-none focus:border-coral transition-colors"
+                  className="flex-1 rounded-lg border border-black/15 bg-transparent px-4 py-3 text-[13px] text-black placeholder:text-black/30 outline-none focus:border-sage transition-colors"
                 />
                 <button
                   type="submit"
-                  className="group flex items-center gap-2 rounded-lg bg-coral px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-coral-hover shrink-0"
+                  className="group flex items-center gap-2 rounded-lg bg-sage px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-sage-hover shrink-0"
                 >
                   JOIN OUR NEWSLETTER
                   <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
@@ -99,7 +109,7 @@ const Footer = () => {
                   <a
                     key={link.label}
                     href={link.href}
-                    className="block text-[12px] font-semibold uppercase tracking-[0.08em] text-black/70 transition-colors hover:text-coral"
+                    className="block text-[12px] font-semibold uppercase tracking-[0.08em] text-black/70 transition-colors hover:text-sage"
                   >
                     {link.label}
                   </a>
@@ -115,7 +125,7 @@ const Footer = () => {
                   <a
                     key={link.label}
                     href={link.href}
-                    className="block text-[12px] font-semibold uppercase tracking-[0.08em] text-black/70 transition-colors hover:text-coral"
+                    className="block text-[12px] font-semibold uppercase tracking-[0.08em] text-black/70 transition-colors hover:text-sage"
                   >
                     {link.label}
                   </a>
@@ -133,7 +143,7 @@ const Footer = () => {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[13px] font-semibold text-coral transition-colors hover:text-coral-hover"
+                    className="text-[13px] font-semibold text-sage transition-colors hover:text-sage-hover"
                   >
                     {link.label}
                   </a>
@@ -161,7 +171,7 @@ const Footer = () => {
                 ref={circleRef}
                 className="absolute inset-0"
                 style={{
-                  background: `repeating-conic-gradient(from 0deg, #FF6B4A 0deg 2deg, transparent 2deg 8deg)`,
+                  background: `repeating-conic-gradient(from 0deg, #7C8C6E 0deg 2deg, transparent 2deg 8deg)`,
                   borderRadius: '50%',
                   maskImage: 'radial-gradient(circle, transparent 55%, black 56%)',
                   WebkitMaskImage: 'radial-gradient(circle, transparent 55%, black 56%)',
@@ -169,7 +179,7 @@ const Footer = () => {
               />
               <button
                 onClick={scrollToTop}
-                className="group relative flex h-[100px] w-[100px] items-center justify-center rounded-full bg-[#0a0a0a] transition-transform duration-300 hover:scale-105 md:h-[120px] md:w-[120px]"
+                className="group relative flex h-[100px] w-[100px] items-center justify-center rounded-full bg-[#1A1A17] transition-transform duration-300 hover:scale-105 md:h-[120px] md:w-[120px]"
                 aria-label="Back to top"
               >
                 <ArrowUp className="h-5 w-5 text-white transition-transform duration-300 group-hover:-translate-y-1" />
@@ -179,7 +189,7 @@ const Footer = () => {
             {/* Center: Large Logo */}
             <div className="text-center">
               <div className="flex items-center justify-center gap-1">
-                <span className="text-[32px] md:text-[44px] lg:text-[56px] font-bold tracking-tight text-coral">
+                <span ref={logoRef} className="footer-logo text-[32px] md:text-[44px] lg:text-[56px] font-bold tracking-tight text-sage" style={{ opacity: 0 }}>
                   Brick &amp; Blooms
                 </span>
               </div>
@@ -192,9 +202,9 @@ const Footer = () => {
             <div className="flex flex-col items-center gap-4 md:items-end">
               <a
                 href="tel:+911234567890"
-                className="text-[18px] font-semibold text-black/70 transition-colors hover:text-coral"
+                className="text-[18px] font-semibold text-black/70 transition-colors hover:text-sage"
               >
-                +91 12345 67890
+                +91 98765 43210
               </a>
               <div className="flex gap-4">
                 {socialLinks.map((link) => (
@@ -203,7 +213,7 @@ const Footer = () => {
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[13px] font-semibold text-coral transition-colors hover:text-coral-hover"
+                    className="text-[13px] font-semibold text-sage transition-colors hover:text-sage-hover"
                   >
                     {link.label}
                   </a>

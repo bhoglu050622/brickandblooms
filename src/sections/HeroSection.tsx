@@ -1,120 +1,188 @@
-import { useState, useEffect, useRef } from 'react';
-import { ArrowRight, Trophy } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { ArrowRight, Play, X, Volume2, VolumeX } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { clientLogos } from '@/data/clientLogos';
+import { company } from '@/data/company';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const clientLogos = [
-  'Obliqon', 'Lindholm', 'Vornberg', 'Wendrich',
-  'Blackwell', 'Aurelis', 'Madison', 'Morisson',
-];
+// Floating particle component
+const Particles = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    const particles: { x: number; y: number; size: number; speed: number; opacity: number }[] = [];
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Create particles
+    for (let i = 0; i < 40; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 3 + 1,
+        speed: Math.random() * 0.3 + 0.1,
+        opacity: Math.random() * 0.4 + 0.1,
+      });
+    }
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p) => {
+        p.y -= p.speed;
+        if (p.y < -10) {
+          p.y = canvas.height + 10;
+          p.x = Math.random() * canvas.width;
+        }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(124, 140, 110, ${p.opacity})`;
+        ctx.fill();
+      });
+      animId = requestAnimationFrame(animate);
+    };
+    animate();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-[2]" />;
+};
 
 const HeroSection = () => {
   const [time, setTime] = useState('--:--');
+  const [showReel, setShowReel] = useState(false);
+  const [muted, setMuted] = useState(true);
   const sectionRef = useRef<HTMLElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
-  const headlineRef = useRef<HTMLHeadingElement>(null);
-  const logoRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const logoOverlayRef = useRef<HTMLDivElement>(null);
+  const logoTextRef1 = useRef<HTMLSpanElement>(null);
+  const logoTextRef2 = useRef<HTMLSpanElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
+  const spotlightRef = useRef<HTMLDivElement>(null);
+
+  const toggleAudio = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !videoRef.current.muted;
+      setMuted(!muted);
+    }
+  };
+
+  // Mouse-reactive parallax on logo + cursor spotlight
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const { clientX, clientY } = e;
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    const dx = (clientX - cx) / cx;
+    const dy = (clientY - cy) / cy;
+
+    // Parallax on logo layers — different depths
+    if (logoTextRef1.current) {
+      gsap.to(logoTextRef1.current, { x: dx * 15, y: dy * 10, duration: 0.6, ease: 'power2.out' });
+    }
+    if (logoTextRef2.current) {
+      gsap.to(logoTextRef2.current, { x: dx * 25, y: dy * 15, duration: 0.6, ease: 'power2.out' });
+    }
+
+    // Cursor spotlight
+    if (spotlightRef.current) {
+      spotlightRef.current.style.background = `radial-gradient(600px circle at ${clientX}px ${clientY}px, rgba(124,140,110,0.06), transparent 60%)`;
+    }
+  }, []);
 
   useEffect(() => {
     const updateTime = () => {
-      const laTime = new Date().toLocaleTimeString('en-US', {
-        timeZone: 'America/Los_Angeles',
+      const t = new Date().toLocaleTimeString('en-US', {
+        timeZone: company.timezone,
         hour12: true,
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
       });
-      setTime(laTime);
+      setTime(t);
     };
     updateTime();
     const interval = setInterval(updateTime, 1000);
 
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReduced) {
+      gsap.set(bgRef.current, { opacity: 1 });
+      gsap.set(logoOverlayRef.current, { opacity: 0, display: 'none' });
+      gsap.set(contentRef.current, { opacity: 1 });
+      return () => clearInterval(interval);
+    }
+
     const ctx = gsap.context(() => {
-      // Master timeline for hero load sequence
-      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-      // 1. Image scales in
-      tl.fromTo(
-        imageRef.current,
-        { scale: 1.2, opacity: 0 },
-        { scale: 1, opacity: 1, duration: 1.5 },
-        0.3
-      );
+      // Video fades in
+      tl.fromTo(bgRef.current, { opacity: 0 }, { opacity: 1, duration: 2 }, 0);
 
-      // 2. Section labels fade in
+      // Logo appears with scale + slight rotation
       tl.fromTo(
-        '.hero-label',
-        { opacity: 0, x: -20 },
-        { opacity: 1, x: 0, duration: 0.6, stagger: 0.15 },
+        logoOverlayRef.current,
+        { opacity: 0, scale: 0.85, rotateX: 5 },
+        { opacity: 1, scale: 1, rotateX: 0, duration: 1.6 },
         0.5
       );
 
-      // 3. Headline word-by-word
-      const words = headlineRef.current?.querySelectorAll('.word');
-      if (words) {
-        tl.fromTo(
-          words,
-          { y: 50, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.7, stagger: 0.06 },
-          0.6
-        );
-      }
+      // Logo fades out
+      tl.to(logoOverlayRef.current, {
+        opacity: 0,
+        scale: 1.08,
+        filter: 'blur(8px)',
+        duration: 1.2,
+        ease: 'power2.in',
+      }, 2.8);
 
-      // 4. Logo slides up
+      // Content reveals
+      tl.fromTo(contentRef.current, { opacity: 0 }, { opacity: 1, duration: 0.6 }, 3.8);
+
       tl.fromTo(
-        logoRef.current,
-        { y: 100, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1.2 },
-        0.9
+        '.hero-item',
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, stagger: 0.08, ease: 'power2.out' },
+        3.9
       );
 
-      // 5. Stats area
-      tl.fromTo(
-        statsRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.8 },
-        1.0
-      );
-
-      // 6. Counter animation for 120+
+      // Counter with elastic overshoot
       const counterObj = { val: 0 };
-      tl.to(
-        counterObj,
-        {
-          val: 120,
-          duration: 2,
-          ease: 'power2.out',
-          onUpdate: () => {
-            if (counterRef.current) {
-              counterRef.current.textContent = Math.round(counterObj.val) + '+';
-            }
-          },
+      tl.to(counterObj, {
+        val: 120,
+        duration: 2.5,
+        ease: 'elastic.out(1, 0.5)',
+        onUpdate: () => {
+          if (counterRef.current) counterRef.current.textContent = Math.round(counterObj.val) + '+';
         },
-        1.0
-      );
+      }, 4.0);
 
-      // 7. Bottom section
-      tl.fromTo(
-        '.hero-bottom-item',
-        { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.7, stagger: 0.1 },
-        1.2
-      );
-
-      // Scroll parallax on image
-      gsap.to(imageRef.current, {
-        y: '-8%',
+      // Scroll: video desaturates as user scrolls past hero
+      gsap.to(bgRef.current, {
+        filter: 'grayscale(100%) brightness(0.6)',
         ease: 'none',
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
           end: 'bottom top',
-          scrub: 1,
+          scrub: true,
         },
       });
     }, sectionRef);
@@ -125,110 +193,106 @@ const HeroSection = () => {
     };
   }, []);
 
-  const headlineWords = ['Nature’s', 'Beauty', 'Delivered'];
+  const prefersReduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-screen w-full overflow-hidden bg-[#0a0a0a] pt-[64px]"
+      className="relative h-screen w-full overflow-hidden bg-[#1A1A17]"
+      onMouseMove={prefersReduced ? undefined : handleMouseMove}
     >
-      {/* Hero Image */}
-      <div
-        ref={imageRef}
-        className="absolute left-1/2 top-0 z-0 w-[120%] max-w-[1200px] -translate-x-1/2 opacity-0"
-      >
-        <div className="relative aspect-[3/4] w-full">
-          <img
-            src="/hero-woman-flowers.jpg"
-            alt="Woman with blue flowers"
-            className="h-full w-full object-cover object-top"
-          />
-          {/* Hero overlay text */}
-          <div className="absolute inset-0 flex items-start justify-center pt-[10%]">
-            <h1 className="text-[60px] sm:text-[80px] md:text-[100px] font-extrabold text-white/10 tracking-tight select-none pointer-events-none">
-              let's create
-            </h1>
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 h-[75%] bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/70 to-transparent" />
-          <div className="absolute inset-y-0 left-0 w-[25%] bg-gradient-to-r from-[#0a0a0a] to-transparent" />
-          <div className="absolute inset-y-0 right-0 w-[25%] bg-gradient-to-l from-[#0a0a0a] to-transparent" />
-        </div>
+      {/* Video Background */}
+      <div ref={bgRef} className="absolute inset-0 z-0 opacity-0 overflow-hidden">
+        {prefersReduced ? (
+          <img src={company.heroPoster} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={company.heroPoster}
+            className="h-full w-full object-cover"
+          >
+            <source src={company.heroMedia} type="video/mp4" />
+          </video>
+        )}
+        {/* Cinematic vignette */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at center, transparent 50%, rgba(26,26,23,0.6) 100%)' }}
+        />
+        <div className="absolute inset-0 bg-[#1A1A17]/15 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-[#1A1A17] via-[#1A1A17]/40 to-transparent pointer-events-none" />
       </div>
 
-      {/* Content Overlay */}
-      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-64px)] max-w-[1400px] flex-col px-6 lg:px-12">
+      {/* Floating particles */}
+      {!prefersReduced && <Particles />}
 
-        {/* Row 1: Section label + Headline + Stats */}
-        <div className="flex flex-1 flex-col">
-          {/* // 00.01° label */}
-          <div className="hero-label flex items-center gap-3 pt-6 opacity-0">
-            <div className="h-px w-12 bg-white/30" />
-            <span className="text-[10px] font-medium tracking-[0.12em] text-white/50 font-mono">
-              // 00.01°
-            </span>
-          </div>
+      {/* Cursor-reactive spotlight overlay */}
+      <div ref={spotlightRef} className="absolute inset-0 z-[3] pointer-events-none" />
 
-          {/* Headline + Stats row */}
-          <div className="mt-8 flex items-start justify-between">
-            {/* Center - Headline */}
-            <div className="flex-1 max-w-[700px] mx-auto text-center">
-              <h5
-                ref={headlineRef}
-                className="text-[24px] sm:text-[30px] md:text-[38px] lg:text-[42px] font-medium leading-[1.25] tracking-tight text-white"
-              >
-                {headlineWords.map((word, index) => (
-                  <span key={index} className="word inline-block mr-[0.3em] opacity-0">
-                    {word}
-                    {index === headlineWords.length - 1 && (
-                      <span className="text-coral">.</span>
-                    )}
-                  </span>
-                ))}
-              </h5>
-            </div>
+      {/* Audio Toggle */}
+      {!prefersReduced && (
+        <button
+          onClick={toggleAudio}
+          className="absolute bottom-6 right-6 z-20 flex items-center gap-2 rounded-full bg-[#1A1A17]/60 backdrop-blur-xl border border-white/10 px-4 py-2 text-white/50 transition-all duration-200 hover:bg-[#1A1A17]/80 hover:text-white/80"
+        >
+          {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          <span className="text-[10px] font-medium uppercase tracking-[0.1em]">
+            {muted ? 'Sound Off' : 'Sound On'}
+          </span>
+        </button>
+      )}
 
-            {/* Right - 120+ Stats */}
-            <div ref={statsRef} className="hidden lg:block text-right opacity-0 shrink-0 ml-8">
-              <div className="text-[56px] md:text-[72px] font-bold leading-none tracking-tight text-coral">
+      {/* Logo Overlay — mouse-reactive parallax layers */}
+      <div
+        ref={logoOverlayRef}
+        className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none opacity-0"
+        style={{ perspective: '1000px' }}
+      >
+        <div className="flex items-baseline gap-1">
+          <span
+            ref={logoTextRef1}
+            className="text-[36px] sm:text-[56px] md:text-[80px] lg:text-[110px] xl:text-[130px] font-extrabold leading-none tracking-tighter text-sage"
+          >
+            Brick
+          </span>
+          <span
+            ref={logoTextRef2}
+            className="text-[36px] sm:text-[56px] md:text-[80px] lg:text-[110px] xl:text-[130px] font-extrabold leading-none tracking-tighter text-white"
+          >
+            &amp; Blooms
+          </span>
+        </div>
+        <p className="mt-4 text-[12px] sm:text-[14px] font-medium uppercase tracking-[0.25em] text-white/50">
+          {company.tagline}
+        </p>
+      </div>
+
+      {/* Main Hero Content */}
+      <div
+        ref={contentRef}
+        className="relative z-10 mx-auto flex h-full max-w-[1400px] flex-col px-6 lg:px-12 opacity-0"
+      >
+        <div className="flex flex-1 flex-col pt-20">
+          {/* Stats */}
+          <div className="hero-item flex items-start justify-between opacity-0">
+            <div className="flex-1" />
+            <div className="hidden lg:block text-right shrink-0">
+              <div className="text-[36px] md:text-[56px] lg:text-[72px] font-bold leading-none tracking-tight text-sage">
                 <span ref={counterRef}>0+</span>
               </div>
               <p className="mt-2 max-w-[160px] text-right text-[10px] font-semibold uppercase leading-relaxed tracking-[0.1em] text-white/50">
-                Quietly making noise for brands worldwide
+                Projects delivered across India
               </p>
-              {/* Brand logo placeholder */}
-              <div className="mt-3 flex items-center justify-end gap-2">
-                <div className="h-4 w-4 rounded-full border border-white/30 flex items-center justify-center">
-                  <span className="text-[6px] text-white/60 font-bold">Q</span>
-                </div>
-                <span className="text-[11px] font-semibold text-white/60 tracking-wide">Wendrich</span>
-              </div>
             </div>
           </div>
 
-          {/* Brick & Blooms Logo */}
-          <div
-            ref={logoRef}
-            className="mt-4 flex items-center justify-center opacity-0"
-          >
-            <span className="text-[60px] sm:text-[80px] md:text-[100px] lg:text-[130px] xl:text-[150px] font-extrabold leading-none tracking-tighter text-coral">
-              Brick
-            </span>
-            <span className="text-[60px] sm:text-[80px] md:text-[100px] lg:text-[130px] xl:text-[150px] font-extrabold leading-none tracking-tighter text-white">
-              &amp; Blooms
-            </span>
-          </div>
-
-          {/* // 00.02° label */}
-          <div className="hero-label flex items-center gap-3 mt-4 opacity-0">
-            <div className="h-px w-12 bg-white/30" />
-            <span className="text-[10px] font-medium tracking-[0.12em] text-white/50 font-mono">
-              // 00.02°
-            </span>
-          </div>
-
           {/* Client logos marquee */}
-          <div className="mt-6 overflow-hidden">
-            <div className="flex animate-marquee gap-12 whitespace-nowrap">
+          <div className="hero-item mt-auto mb-8 overflow-hidden opacity-0">
+            <div className="flex animate-marquee gap-12 whitespace-nowrap hover:[animation-play-state:paused]">
               {[...clientLogos, ...clientLogos].map((logo, i) => (
                 <div key={i} className="flex items-center gap-2 shrink-0 opacity-40">
                   <div className="h-5 w-5 rounded-full border border-white/30 flex items-center justify-center">
@@ -241,106 +305,90 @@ const HeroSection = () => {
           </div>
         </div>
 
-        {/* Row 2: Bottom - Description + CTAs + Showreel */}
-        <div ref={bottomRef} className="grid grid-cols-1 gap-8 pb-8 mt-auto lg:grid-cols-12">
-          {/* Left - Description and CTAs */}
-          <div className="lg:col-span-7">
-            {/* // 00.03° label */}
-            <div className="hero-bottom-item flex items-center gap-3 mb-4 opacity-0">
-              <div className="h-px w-12 bg-white/30" />
-              <span className="text-[10px] font-medium tracking-[0.12em] text-white/50 font-mono">
-                // 00.03°
-              </span>
-            </div>
-
-            <div className="hero-bottom-item opacity-0">
-              <p className="mb-1 max-w-[420px] text-[11px] font-semibold uppercase leading-[1.8] tracking-[0.06em] text-white/70">
-                TRANSFORMING OUTDOOR SPACES WITH THOUGHTFUL LANDSCAPE DESIGN & EXECUTION.
+        {/* Bottom — Description + CTAs + Showreel */}
+        <div className="pb-8 flex flex-col lg:flex-row items-end justify-between gap-8">
+          <div className="max-w-[550px]">
+            <div className="hero-item opacity-0">
+              <p className="mb-1 text-[11px] font-semibold uppercase leading-[1.8] tracking-[0.06em] text-white/70">
+                {company.heroDescription}
               </p>
-              <p className="mb-4 max-w-[420px] text-[11px] font-semibold uppercase leading-[1.8] tracking-[0.06em] text-white/70">
-                DESIGN • CONSULTATION • EXECUTION • PROJECT MANAGEMENT.
+              <p className="mb-4 text-[11px] font-semibold uppercase leading-[1.8] tracking-[0.06em] text-white/70">
+                {company.heroServices}
               </p>
             </div>
 
-            <div className="hero-bottom-item mb-5 opacity-0">
+            <div className="hero-item mb-5 opacity-0">
               <div className="flex items-center gap-4">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
-                    OUR TIME
-                  </p>
-                  <p className="text-[13px] font-medium tracking-tight text-white/80 tabular-nums">
-                    {time}
-                  </p>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">OUR TIME</p>
+                  <p className="text-[13px] font-medium tracking-tight text-white/80 tabular-nums">{time}</p>
                 </div>
                 <div className="h-8 w-px bg-white/20" />
                 <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
-                  UTC−8 LOS ANGELES
+                  {company.timezoneLabel}
                 </p>
               </div>
             </div>
 
-            {/* // 00.04° label */}
-            <div className="hero-bottom-item flex items-center gap-3 mb-4 opacity-0">
-              <div className="h-px w-12 bg-white/30" />
-              <span className="text-[10px] font-medium tracking-[0.12em] text-white/50 font-mono">
-                // 00.04°
-              </span>
-            </div>
-
-            <div className="hero-bottom-item flex flex-wrap gap-3 opacity-0">
+            <div className="hero-item flex flex-wrap gap-3 opacity-0">
               <a
                 href="#work"
-                className="group flex items-center gap-2 rounded-lg bg-coral px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-colors duration-250 hover:bg-coral-hover"
+                className="group flex items-center gap-2 rounded-lg bg-sage px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-all duration-300 hover:bg-sage-hover hover:shadow-lg hover:shadow-sage/30 hover:scale-[1.02]"
               >
                 SEE WORK
                 <ArrowRight className="h-3.5 w-3.5 transition-transform duration-250 group-hover:translate-x-1" />
               </a>
               <a
                 href="#contact"
-                className="group flex items-center gap-2 rounded-lg border border-white/20 bg-transparent px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-all duration-250 hover:border-white/40 hover:bg-white/[0.03]"
+                className="group flex items-center gap-2 rounded-lg border border-white/20 bg-transparent px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-all duration-300 hover:border-white/40 hover:bg-white/[0.05] hover:shadow-lg hover:shadow-white/5 hover:scale-[1.02]"
               >
-                LET'S CHAT
+                GET A QUOTE
                 <ArrowRight className="h-3.5 w-3.5 transition-transform duration-250 group-hover:translate-x-1" />
               </a>
             </div>
           </div>
 
-          {/* Right - Showreel Card */}
-          <div className="hero-bottom-item lg:col-span-5 opacity-0">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/50">
-                SHOWREEL
-              </span>
-              <div className="flex items-center gap-2">
-                <div className="h-px w-14 bg-white/20" />
-                <span className="text-[10px] font-medium tracking-[0.06em] text-white/40">
-                  \\2025
-                </span>
-              </div>
-            </div>
-
-            <div className="group relative overflow-hidden rounded-xl">
-              <img
-                src="/showreel-abstract.jpg"
-                alt="Showreel 2025"
-                className="aspect-[16/9] w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/95 shadow-lg">
-                  <div className="ml-1 h-0 w-0 border-y-[6px] border-l-[10px] border-y-transparent border-l-black" />
+          {/* Showreel thumbnail */}
+          <div className="hero-item opacity-0 shrink-0 mb-10 lg:mb-0">
+            <button
+              onClick={() => setShowReel(true)}
+              className="group relative w-[240px] md:w-[300px] overflow-hidden rounded-xl"
+            >
+              <video muted loop playsInline autoPlay className="aspect-[16/9] w-full object-cover transition-transform duration-500 group-hover:scale-105">
+                <source src="/showreel.mp4" type="video/mp4" />
+              </video>
+              <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors duration-300 group-hover:bg-black/20">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform duration-300 group-hover:scale-110">
+                  <Play className="h-5 w-5 text-black ml-0.5" fill="black" />
                 </div>
               </div>
-            </div>
-
-            <div className="mt-2 flex items-center gap-2">
-              <Trophy className="h-3 w-3 text-white/40" />
-              <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-white/40">
-                Best Digital Campaign, Wobbly Awards
-              </span>
-            </div>
+              <div className="absolute bottom-3 left-3">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-white/70">Showreel</span>
+              </div>
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Video Lightbox */}
+      {showReel && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          onClick={() => setShowReel(false)}
+        >
+          <button
+            onClick={() => setShowReel(false)}
+            className="absolute top-6 right-6 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <div className="w-full max-w-[900px] mx-4" onClick={(e) => e.stopPropagation()}>
+            <video autoPlay controls playsInline className="w-full rounded-xl shadow-2xl">
+              <source src="/showreel.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

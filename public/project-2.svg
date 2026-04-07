@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 600">
+  <defs>
+    <linearGradient id="p2Bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5F0E8"/>
+      <stop offset="100%" stop-color="#e8dfd0"/>
+    </linearGradient>
+    <linearGradient id="p2Wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D4C9B8"/>
+      <stop offset="100%" stop-color="#c4b8a5"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1400" height="600" fill="url(#p2Bg)"/>
+  <!-- Left wall -->
+  <path d="M0 50 L300 50 L300 600 L0 600Z" fill="url(#p2Wall)" opacity="0.4"/>
+  <path d="M300 50 L350 80 L350 600 L300 600Z" fill="#1A1A17" opacity="0.06"/>
+  <!-- Right wall -->
+  <path d="M1100 50 L1400 50 L1400 600 L1100 600Z" fill="url(#p2Wall)" opacity="0.4"/>
+  <path d="M1050 80 L1100 50 L1100 600 L1050 600Z" fill="#1A1A17" opacity="0.06"/>
+  <!-- Left archway -->
+  <path d="M150 120 Q150 50 250 50 L250 120 Q250 80 200 80 Q150 80 150 120Z" fill="#F5F0E8" opacity="0.5"/>
+  <path d="M130 600 L130 130 Q130 30 250 30 Q370 30 370 130 L370 600" fill="none" stroke="#C67D5B" stroke-width="3" opacity="0.3"/>
+  <!-- Right archway -->
+  <path d="M1030 600 L1030 130 Q1030 30 1150 30 Q1270 30 1270 130 L1270 600" fill="none" stroke="#C67D5B" stroke-width="3" opacity="0.3"/>
+  <!-- Center archway (larger, background) -->
+  <path d="M550 600 L550 180 Q550 60 700 60 Q850 60 850 180 L850 600" fill="none" stroke="#D4C9B8" stroke-width="4" opacity="0.3"/>
+  <path d="M570 600 L570 190 Q570 80 700 80 Q830 80 830 190 L830 600" fill="#F5F0E8" opacity="0.15"/>
+  <!-- Courtyard floor -->
+  <path d="M300 450 L1100 450 L1150 600 L250 600Z" fill="#D4C9B8" opacity="0.2"/>
+  <!-- Floor tile pattern -->
+  <line x1="450" y1="450" x2="400" y2="600" stroke="#1A1A17" stroke-width="0.5" opacity="0.05"/>
+  <line x1="600" y1="450" x2="560" y2="600" stroke="#1A1A17" stroke-width="0.5" opacity="0.05"/>
+  <line x1="750" y1="450" x2="730" y2="600" stroke="#1A1A17" stroke-width="0.5" opacity="0.05"/>
+  <line x1="900" y1="450" x2="900" y2="600" stroke="#1A1A17" stroke-width="0.5" opacity="0.05"/>
+  <line x1="1050" y1="450" x2="1080" y2="600" stroke="#1A1A17" stroke-width="0.5" opacity="0.05"/>
+  <!-- Central garden area -->
+  <!-- Large central tree -->
+  <ellipse cx="700" cy="280" rx="100" ry="130" fill="#7C8C6E" opacity="0.3"/>
+  <ellipse cx="730" cy="270" rx="85" ry="120" fill="#8a9a7c" opacity="0.25" transform="rotate(5 730 270)"/>
+  <ellipse cx="670" cy="290" rx="75" ry="110" fill="#7C8C6E" opacity="0.2" transform="rotate(-8 670 290)"/>
+  <ellipse cx="700" cy="260" rx="60" ry="90" fill="#6b7a5e" opacity="0.2"/>
+  <!-- Tree trunk suggestion -->
+  <rect x="690" y="380" width="20" height="70" rx="5" fill="#1A1A17" opacity="0.08"/>
+  <!-- Garden bed left -->
+  <ellipse cx="480" cy="420" rx="80" ry="35" fill="#7C8C6E" opacity="0.2"/>
+  <ellipse cx="460" cy="400" rx="30" ry="50" fill="#7C8C6E" opacity="0.3" transform="rotate(-15 460 400)"/>
+  <ellipse cx="500" cy="395" rx="25" ry="45" fill="#8a9a7c" opacity="0.25" transform="rotate(10 500 395)"/>
+  <ellipse cx="480" cy="390" rx="20" ry="40" fill="#7C8C6E" opacity="0.2"/>
+  <!-- Garden bed right -->
+  <ellipse cx="920" cy="420" rx="80" ry="35" fill="#7C8C6E" opacity="0.2"/>
+  <ellipse cx="940" cy="400" rx="30" ry="50" fill="#7C8C6E" opacity="0.3" transform="rotate(12 940 400)"/>
+  <ellipse cx="900" cy="395" rx="28" ry="48" fill="#8a9a7c" opacity="0.25" transform="rotate(-8 900 395)"/>
+  <ellipse cx="920" cy="388" rx="22" ry="42" fill="#7C8C6E" opacity="0.2"/>
+  <!-- Terracotta flower accents -->
+  <circle cx="700" cy="210" r="10" fill="#C67D5B" opacity="0.35"/>
+  <circle cx="650" cy="240" r="7" fill="#C67D5B" opacity="0.3"/>
+  <circle cx="760" cy="230" r="8" fill="#C67D5B" opacity="0.3"/>
+  <circle cx="470" cy="375" r="6" fill="#C67D5B" opacity="0.35"/>
+  <circle cx="510" cy="380" r="5" fill="#C67D5B" opacity="0.3"/>
+  <circle cx="930" cy="375" r="6" fill="#C67D5B" opacity="0.35"/>
+  <circle cx="895" cy="382" r="5" fill="#C67D5B" opacity="0.3"/>
+  <!-- Wall climbing vines - left -->
+  <path d="M300 200 Q310 250 305 300 Q315 350 310 400" fill="none" stroke="#7C8C6E" stroke-width="2" opacity="0.25"/>
+  <ellipse cx="308" cy="240" rx="10" ry="15" fill="#7C8C6E" opacity="0.2" transform="rotate(20 308 240)"/>
+  <ellipse cx="312" cy="300" rx="12" ry="16" fill="#8a9a7c" opacity="0.18" transform="rotate(-15 312 300)"/>
+  <ellipse cx="307" cy="370" rx="10" ry="14" fill="#7C8C6E" opacity="0.2" transform="rotate(10 307 370)"/>
+  <!-- Wall climbing vines - right -->
+  <path d="M1100 220 Q1090 270 1095 320 Q1085 370 1090 420" fill="none" stroke="#7C8C6E" stroke-width="2" opacity="0.25"/>
+  <ellipse cx="1092" cy="260" rx="10" ry="15" fill="#7C8C6E" opacity="0.2" transform="rotate(-20 1092 260)"/>
+  <ellipse cx="1088" cy="330" rx="12" ry="16" fill="#8a9a7c" opacity="0.18" transform="rotate(12 1088 330)"/>
+  <ellipse cx="1092" cy="390" rx="10" ry="14" fill="#7C8C6E" opacity="0.2" transform="rotate(-8 1092 390)"/>
+  <!-- Terracotta wall accents -->
+  <rect x="60" y="200" width="80" height="4" rx="2" fill="#C67D5B" opacity="0.15"/>
+  <rect x="60" y="300" width="80" height="4" rx="2" fill="#C67D5B" opacity="0.12"/>
+  <rect x="1250" y="200" width="80" height="4" rx="2" fill="#C67D5B" opacity="0.15"/>
+  <rect x="1250" y="300" width="80" height="4" rx="2" fill="#C67D5B" opacity="0.12"/>
+</svg>

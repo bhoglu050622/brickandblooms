@@ -32,13 +32,13 @@ html.lenis, html.lenis body {
 
 /* Selection color */
 ::selection {
-  background-color: rgba(255, 107, 74, 0.3);
+  background-color: rgba(124, 140, 110, 0.3);
   color: white;
 }
 
 /* Focus styles */
 *:focus-visible {
-  outline: 2px solid #FF6B4A;
+  outline: 2px solid #7C8C6E;
   outline-offset: 2px;
 }
 
@@ -59,7 +59,7 @@ a, button {
 
 /* Image loading placeholder */
 img {
-  background-color: #1a1a1a;
+  background-color: #2A2A25;
 }
 
 /* Prevent text selection on decorative elements */
@@ -92,11 +92,11 @@ img {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #1A1A17;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
+  background: #2A2A25;
   border-radius: 3px;
 }
 
@@ -107,5 +107,5 @@ img {
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #2a2a2a #0a0a0a;
+  scrollbar-color: #2A2A25 #1A1A17;
 }

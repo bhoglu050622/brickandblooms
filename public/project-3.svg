@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 600">
+  <defs>
+    <linearGradient id="p3Bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5F0E8"/>
+      <stop offset="60%" stop-color="#ede6d8"/>
+      <stop offset="100%" stop-color="#e5ddd0"/>
+    </linearGradient>
+    <linearGradient id="poolGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7C8C6E" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#7C8C6E" stop-opacity="0.25"/>
+    </linearGradient>
+    <linearGradient id="canopy" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6b7a5e"/>
+      <stop offset="100%" stop-color="#7C8C6E"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1400" height="600" fill="url(#p3Bg)"/>
+  <!-- Ground plane -->
+  <path d="M0 380 Q350 360 700 375 Q1050 360 1400 380 L1400 600 L0 600Z" fill="#D4C9B8" opacity="0.2"/>
+  <!-- Pool shape - organic flowing form -->
+  <path d="M400 400 Q450 350 550 360 Q650 340 750 360 Q850 350 900 380 Q950 410 920 450 Q880 490 800 480 Q700 500 600 490 Q500 500 450 470 Q380 450 400 400Z" fill="url(#poolGrad)"/>
+  <path d="M400 400 Q450 350 550 360 Q650 340 750 360 Q850 350 900 380 Q950 410 920 450 Q880 490 800 480 Q700 500 600 490 Q500 500 450 470 Q380 450 400 400Z" fill="none" stroke="#7C8C6E" stroke-width="2" opacity="0.2"/>
+  <!-- Pool inner highlight -->
+  <path d="M440 405 Q490 370 580 378 Q660 362 730 375 Q810 365 860 388 Q900 410 880 440 Q850 465 780 458 Q690 475 610 468 Q530 475 480 452 Q425 435 440 405Z" fill="#F5F0E8" opacity="0.15"/>
+  <!-- Pool water ripple lines -->
+  <path d="M500 400 Q600 390 700 400 Q800 390 850 410" fill="none" stroke="#F5F0E8" stroke-width="0.8" opacity="0.2"/>
+  <path d="M480 430 Q580 420 700 430 Q800 425 870 440" fill="none" stroke="#F5F0E8" stroke-width="0.8" opacity="0.15"/>
+  <!-- Pool deck/surround -->
+  <path d="M370 395 Q380 380 400 400" fill="none" stroke="#D4C9B8" stroke-width="4" opacity="0.3"/>
+  <path d="M930 385 Q950 405 940 430" fill="none" stroke="#D4C9B8" stroke-width="4" opacity="0.3"/>
+  <!-- Large tree/canopy - left -->
+  <ellipse cx="200" cy="220" rx="140" ry="160" fill="url(#canopy)" opacity="0.3"/>
+  <ellipse cx="240" cy="210" rx="120" ry="145" fill="#8a9a7c" opacity="0.25" transform="rotate(5 240 210)"/>
+  <ellipse cx="170" cy="235" rx="100" ry="130" fill="#7C8C6E" opacity="0.2" transform="rotate(-8 170 235)"/>
+  <ellipse cx="210" cy="200" rx="80" ry="110" fill="#6b7a5e" opacity="0.2"/>
+  <!-- Tree trunk left -->
+  <path d="M190 360 Q195 400 200 440 Q205 460 195 480" fill="none" stroke="#1A1A17" stroke-width="8" opacity="0.08" stroke-linecap="round"/>
+  <path d="M210 350 Q220 390 225 430" fill="none" stroke="#1A1A17" stroke-width="5" opacity="0.06" stroke-linecap="round"/>
+  <!-- Large tree/canopy - right -->
+  <ellipse cx="1200" cy="200" rx="150" ry="170" fill="url(#canopy)" opacity="0.3"/>
+  <ellipse cx="1170" cy="190" rx="130" ry="155" fill="#8a9a7c" opacity="0.25" transform="rotate(-5 1170 190)"/>
+  <ellipse cx="1230" cy="215" rx="110" ry="140" fill="#7C8C6E" opacity="0.2" transform="rotate(10 1230 215)"/>
+  <ellipse cx="1195" cy="185" rx="85" ry="115" fill="#6b7a5e" opacity="0.2"/>
+  <!-- Tree trunk right -->
+  <path d="M1195 350 Q1190 390 1195 440 Q1200 460 1190 480" fill="none" stroke="#1A1A17" stroke-width="8" opacity="0.08" stroke-linecap="round"/>
+  <!-- Medium tree center-right -->
+  <ellipse cx="1000" cy="260" rx="80" ry="110" fill="#7C8C6E" opacity="0.25"/>
+  <ellipse cx="1020" cy="250" rx="65" ry="95" fill="#8a9a7c" opacity="0.2" transform="rotate(8 1020 250)"/>
+  <ellipse cx="985" cy="270" rx="55" ry="85" fill="#7C8C6E" opacity="0.18"/>
+  <path d="M1000 350 Q1002 390 1005 420" fill="none" stroke="#1A1A17" stroke-width="5" opacity="0.06" stroke-linecap="round"/>
+  <!-- Shrub forms around pool -->
+  <ellipse cx="380" cy="440" rx="35" ry="25" fill="#7C8C6E" opacity="0.25"/>
+  <ellipse cx="370" cy="435" rx="25" ry="30" fill="#8a9a7c" opacity="0.2" transform="rotate(-10 370 435)"/>
+  <ellipse cx="950" cy="430" rx="30" ry="22" fill="#7C8C6E" opacity="0.25"/>
+  <ellipse cx="960" cy="425" rx="22" ry="28" fill="#8a9a7c" opacity="0.2" transform="rotate(12 960 425)"/>
+  <!-- Estate structure suggestion - far background -->
+  <rect x="500" y="160" width="400" height="180" rx="4" fill="#D4C9B8" opacity="0.15"/>
+  <rect x="520" y="170" width="80" height="60" rx="3" fill="#F5F0E8" opacity="0.12"/>
+  <rect x="630" y="170" width="60" height="100" rx="3" fill="#F5F0E8" opacity="0.1"/>
+  <rect x="720" y="170" width="80" height="60" rx="3" fill="#F5F0E8" opacity="0.12"/>
+  <path d="M480 160 L700 90 L920 160" fill="none" stroke="#D4C9B8" stroke-width="2" opacity="0.2"/>
+  <!-- Lounge chairs suggestion -->
+  <rect x="550" y="500" width="60" height="15" rx="4" fill="#D4C9B8" opacity="0.25" transform="rotate(-5 580 508)"/>
+  <rect x="790" y="500" width="60" height="15" rx="4" fill="#D4C9B8" opacity="0.25" transform="rotate(5 820 508)"/>
+  <!-- Flower/bloom accents -->
+  <circle cx="160" cy="160" r="8" fill="#C67D5B" opacity="0.35"/>
+  <circle cx="250" cy="140" r="6" fill="#C67D5B" opacity="0.3"/>
+  <circle cx="130" cy="200" r="7" fill="#C67D5B" opacity="0.3"/>
+  <circle cx="1150" cy="150" r="8" fill="#C67D5B" opacity="0.35"/>
+  <circle cx="1250" cy="140" r="6" fill="#C67D5B" opacity="0.3"/>
+  <circle cx="1180" cy="190" r="7" fill="#C67D5B" opacity="0.28"/>
+  <circle cx="1020" cy="210" r="5" fill="#C67D5B" opacity="0.3"/>
+  <!-- Pathway from house to pool -->
+  <path d="M700 340 Q700 360 680 380 Q660 400 660 420" fill="none" stroke="#D4C9B8" stroke-width="12" opacity="0.2" stroke-linecap="round"/>
+  <!-- Ambient warm light circles -->
+  <circle cx="500" cy="520" r="4" fill="#C67D5B" opacity="0.25"/>
+  <circle cx="900" cy="520" r="4" fill="#C67D5B" opacity="0.25"/>
+  <circle cx="700" cy="540" r="3" fill="#C67D5B" opacity="0.2"/>
+</svg>

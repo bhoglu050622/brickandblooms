@@ -2,100 +2,10 @@ import { useEffect, useRef } from 'react';
 import { ArrowRight, Check } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { plans } from '@/data/pricing';
+import { contacts } from '@/data/company';
 
 gsap.registerPlugin(ScrollTrigger);
-
-interface PricingPlan {
-  number: string;
-  name: string;
-  tier: string;
-  subtitle: string;
-  price: string;
-  originalPrice: string;
-  description: string;
-  features: string[];
-  extras: string[];
-  timeline: string;
-  color: string;
-}
-
-const plans: PricingPlan[] = [
-  {
-    number: '01',
-    name: 'Core',
-    tier: 'Starter Plan',
-    subtitle: 'For startups and first launches',
-    price: '$2,800',
-    originalPrice: '$3,500',
-    description: 'Simple, fast, and effective, so you can focus on growing your business.',
-    features: [
-      'Brand & Identity starter kit',
-      'Website design (core pages)',
-      'Standard revisions',
-      'SEO setup essentials',
-      'Unlimited stock images',
-      'Native source files included',
-      'Final handoff files',
-    ],
-    extras: [
-      'Clear milestones from start to finish',
-      'We keep you in the loop',
-      'Feedback built into the process',
-    ],
-    timeline: '2-3 weeks',
-    color: 'from-red-700 to-red-900',
-  },
-  {
-    number: '02',
-    name: 'Studio',
-    tier: 'Advanced Plan',
-    subtitle: 'For growing teams and serious builds',
-    price: '$6,500',
-    originalPrice: '$8,000',
-    description: 'A complete package with flexibility, advanced design, and the support you need to grow faster.',
-    features: [
-      'Extended Branding',
-      'Full website design',
-      'UX flows & product design',
-      'Unlimited revisions',
-      'Advanced SEO & content',
-      'Priority support response',
-      'Final handoff',
-    ],
-    extras: [
-      'Deeper design coverage for complex needs',
-      'Unlimited adjustments before launch',
-      'Faster responses when you need us most',
-    ],
-    timeline: '4-6 weeks',
-    color: 'from-blue-700 to-blue-900',
-  },
-  {
-    number: '03',
-    name: 'Scale',
-    tier: 'Growth Plan',
-    subtitle: 'For established teams and long-term growth',
-    price: '$12,000',
-    originalPrice: '$15,000',
-    description: 'Strategy, design, and dedicated support for complex projects that demand scalability and polish.',
-    features: [
-      'End-to-end brand strategy',
-      'Large-scale website & CMS',
-      'Advanced UX & product design',
-      'Dedicated senior managers',
-      'Advanced micro-interactions',
-      'Optimization & support',
-      'Enterprise-level handoff',
-    ],
-    extras: [
-      'Scalable solutions designed for growth',
-      'Dedicated manager guiding every stage with integrations',
-      'Long-term support beyond launch',
-    ],
-    timeline: '6–8 weeks',
-    color: 'from-gray-700 to-gray-900',
-  },
-];
 
 const PricingSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -107,20 +17,47 @@ const PricingSection = () => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         section.querySelectorAll('.pricing-card'),
-        { y: 60, opacity: 0 },
+        { y: 60, opacity: 0, scale: 0.97 },
         {
           y: 0,
           opacity: 1,
-          duration: 0.7,
+          scale: 1,
+          duration: 0.9,
           stagger: 0.15,
-          ease: 'power2.out',
+          ease: 'power3.out',
           scrollTrigger: { trigger: section, start: 'top 70%' },
         }
       );
+
+      // Count up price numbers
+      section.querySelectorAll('.price-value').forEach((el) => {
+        const target = parseInt((el as HTMLElement).dataset.price || '0', 10);
+        const obj = { val: 0 };
+        gsap.to(obj, {
+          val: target,
+          duration: 1.5,
+          ease: 'power2.out',
+          scrollTrigger: { trigger: el, start: 'top 80%' },
+          onUpdate: () => { (el as HTMLElement).textContent = '$' + Math.round(obj.val).toLocaleString(); },
+        });
+      });
+
+      // Stagger feature reveals
+      section.querySelectorAll('.pricing-card').forEach((card) => {
+        const features = card.querySelectorAll('.price-feature');
+        gsap.fromTo(features, { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.3, stagger: 0.05, ease: 'power2.out', scrollTrigger: { trigger: card, start: 'top 65%' } });
+      });
     }, section);
 
     return () => ctx.revert();
   }, []);
+
+  // Ladder config: Premium (index 1) gets the most visual weight
+  const cardStyles = [
+    'md:mt-8', // Budget-Friendly: offset down
+    'md:-mt-4 ring-2 ring-sage/30', // Premium: taller, highlighted
+    'md:mt-12', // Ultra Luxury: offset further down
+  ];
 
   return (
     <section ref={sectionRef} id="pricing" className="w-full bg-white py-24">
@@ -135,59 +72,74 @@ const PricingSection = () => {
               Plans built to fit your next project
             </h2>
             <p className="max-w-[460px] text-[14px] leading-relaxed text-black/50">
-              —— Designed around your specs, each plan gives you clarity on scope, features, and cost so you can move forward with confidence.
+              Three tiers designed around different scales of outdoor transformation — from a single balcony to a full estate.
             </p>
           </div>
           <div className="hidden md:block">
             <div className="h-10 w-10 rounded-full border border-black/20 flex items-center justify-center">
-              <span className="text-[14px] font-bold text-black/30">C</span>
+              <span className="text-[10px] font-bold text-black/30">B&B</span>
             </div>
           </div>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+        {/* Pricing Ladder */}
+        <div className="group/pricing grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 items-start">
           {plans.map((plan, index) => (
             <div
               key={index}
-              className="pricing-card rounded-2xl border border-black/10 bg-white overflow-hidden opacity-0 hover:border-black/20 transition-all duration-300"
+              className={`pricing-card rounded-2xl border bg-white overflow-hidden opacity-0 transition-all duration-300 group-hover/pricing:opacity-50 hover:!opacity-100 ${
+                index === 1
+                  ? 'border-sage/30 shadow-lg shadow-sage/5 hover:shadow-xl hover:shadow-sage/10'
+                  : 'border-black/10 hover:border-black/20'
+              } ${cardStyles[index]}`}
             >
+              {/* Recommended badge for Premium */}
+              {index === 1 && (
+                <div className="bg-sage px-4 py-2 text-center">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white">
+                    Most Popular
+                  </span>
+                </div>
+              )}
+
               {/* Card header */}
-              <div className="p-6 border-b border-black/10">
+              <div className={`p-6 ${index === 1 ? 'pb-8' : ''} border-b border-black/10`}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-semibold text-black/40">{plan.name}</span>
+                  <span className="text-[12px] font-semibold text-black/60">{plan.name}</span>
                   <span className="text-[10px] font-medium text-black/30">{plan.tier}</span>
                 </div>
                 <p className="text-[12px] text-black/50 mb-4">{plan.subtitle}</p>
 
                 {/* Price */}
                 <div className="flex items-baseline gap-2 mb-1">
-                  <span className="text-[36px] md:text-[42px] font-bold text-black leading-none">
-                    {plan.price}
+                  <span className={`font-bold text-black leading-none ${
+                    index === 1 ? 'text-[32px] md:text-[42px] lg:text-[52px]' : 'text-[28px] md:text-[36px] lg:text-[42px]'
+                  }`}>
+                    <span className="price-value" data-price={plan.price.replace(/[$,]/g, '')}>{plan.price}</span>
                   </span>
                   <span className="text-[13px] text-black/40">/project</span>
                 </div>
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-[12px] text-black/30 line-through">{plan.originalPrice}</span>
-                  <span className="rounded bg-coral/10 px-2 py-0.5 text-[10px] font-semibold text-coral">
+                  <span className="rounded bg-sage/10 px-2 py-0.5 text-[10px] font-semibold text-sage">
                     SAVE 20%
                   </span>
                 </div>
 
-                {/* Image placeholder */}
-                <div className={`aspect-[3/2] w-full rounded-xl bg-gradient-to-br ${plan.color} mb-4 flex items-center justify-center`}>
-                  <span className="text-white/20 text-[24px] font-bold">{plan.name}</span>
-                </div>
+                {/* Gradient strip */}
+                <div className={`h-2 w-full rounded-full bg-gradient-to-r ${plan.color} mb-4`} />
 
                 <p className="text-[12px] italic text-black/50">{plan.description}</p>
               </div>
 
               {/* Features */}
-              <div className="p-6">
+              <div className={`p-6 ${index === 1 ? 'py-8' : ''}`}>
                 <div className="space-y-2.5 mb-6">
                   {plan.features.map((feature, i) => (
-                    <div key={i} className="flex items-start gap-2.5">
-                      <Check className="h-3.5 w-3.5 mt-0.5 text-coral shrink-0" />
+                    <div key={i} className="price-feature flex items-start gap-2.5">
+                      <Check className={`h-3.5 w-3.5 mt-0.5 shrink-0 ${
+                        index === 1 ? 'text-sage' : 'text-black/30'
+                      }`} />
                       <span className="text-[12px] text-black/60">{feature}</span>
                     </div>
                   ))}
@@ -197,7 +149,7 @@ const PricingSection = () => {
                 <div className="space-y-2 mb-6 border-t border-black/10 pt-4">
                   {plan.extras.map((extra, i) => (
                     <div key={i} className="flex items-start gap-2.5">
-                      <span className="text-[12px] font-medium text-coral">+</span>
+                      <span className="text-[12px] font-medium text-sage">+</span>
                       <span className="text-[12px] italic text-black/50">{extra}</span>
                     </div>
                   ))}
@@ -206,7 +158,11 @@ const PricingSection = () => {
                 {/* CTA */}
                 <a
                   href="#contact"
-                  className="group flex w-full items-center justify-center gap-2 rounded-lg bg-coral px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-coral-hover"
+                  className={`group flex w-full items-center justify-center gap-2 rounded-lg px-5 text-[11px] font-semibold uppercase tracking-[0.1em] transition-colors ${
+                    index === 1
+                      ? 'bg-sage py-4 text-white hover:bg-sage-hover'
+                      : 'bg-[#1A1A17] py-3 text-white hover:bg-[#2A2A25]'
+                  }`}
                 >
                   GET STARTED
                   <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
@@ -236,17 +192,16 @@ const PricingSection = () => {
             </p>
           </div>
           <div className="flex items-center gap-4">
-            {/* Avatar placeholder */}
-            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center">
-              <span className="text-white font-bold text-[14px]">MW</span>
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-sage/60 to-sage flex items-center justify-center">
+              <span className="text-white font-bold text-[14px]">{contacts.operationsManager.initials}</span>
             </div>
             <div>
-              <p className="text-[13px] font-semibold text-black">Maggie Winslow</p>
-              <p className="text-[11px] text-black/50">Project Operations Manager</p>
+              <p className="text-[13px] font-semibold text-black">{contacts.operationsManager.name}</p>
+              <p className="text-[11px] text-black/50">{contacts.operationsManager.role}</p>
             </div>
             <a
               href="#contact"
-              className="group flex items-center gap-2 rounded-lg bg-[#0a0a0a] px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#222]"
+              className="group flex items-center gap-2 rounded-lg bg-[#1A1A17] px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-[#2A2A25]"
             >
               BOOK A CALL
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
