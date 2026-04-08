@@ -2,15 +2,56 @@ import { useEffect, useRef } from 'react';
 import { ArrowRight, Plus } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { splitTextReveal, clipReveal, magneticElement } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const CTASection = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const quoteRef = useRef<HTMLDivElement>(null);
+  const ctaBtnRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const contexts: gsap.Context[] = [];
+    let magneticCleanup: (() => void) | undefined;
+
+    if (prefersReduced) {
+      section.querySelectorAll('.cta-item').forEach((el) => gsap.set(el, { opacity: 1 }));
+      if (headingRef.current) gsap.set(headingRef.current, { opacity: 1 });
+      if (quoteRef.current) gsap.set(quoteRef.current, { opacity: 1 });
+      return;
+    }
+
+    // Split text reveal on heading
+    if (headingRef.current) {
+      const headCtx = splitTextReveal(headingRef.current, section, {
+        mode: 'words',
+        duration: 0.6,
+        stagger: 0.08,
+        y: 35,
+        start: 'top 70%',
+      });
+      contexts.push(headCtx);
+    }
+
+    // Clip reveal on CEO quote card
+    if (quoteRef.current) {
+      const quoteCtx = clipReveal(quoteRef.current, section, {
+        duration: 1.2,
+        start: 'top 75%',
+      });
+      contexts.push(quoteCtx);
+    }
+
+    // Magnetic effect on CTA button (desktop only)
+    if (ctaBtnRef.current) {
+      magneticCleanup = magneticElement(ctaBtnRef.current, { strength: 15, ease: 0.4 });
+    }
 
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -27,7 +68,11 @@ const CTASection = () => {
       );
     }, section);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      contexts.forEach((c) => c.revert());
+      magneticCleanup?.();
+    };
   }, []);
 
   return (
@@ -49,9 +94,9 @@ const CTASection = () => {
           </div>
         </div>
 
-        {/* 9 years + Let us inspire */}
+        {/* 4 years + Let us inspire */}
         <div className="cta-item grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 opacity-0">
-          {/* Left - 9 years */}
+          {/* Left - 4 years */}
           <div>
             <span className="text-[11px] font-medium text-black/30 tracking-[0.1em]">4+ years</span>
             <p className="mt-2 text-[14px] leading-relaxed text-black/50">
@@ -69,14 +114,20 @@ const CTASection = () => {
 
           {/* Right - Let us inspire */}
           <div>
-            <h2 className="text-[32px] md:text-[48px] font-medium leading-[1.1] tracking-tight text-black">
+            <h2
+              ref={headingRef}
+              className="text-[32px] md:text-[48px] font-medium leading-[1.1] tracking-tight text-black"
+            >
               Ready to transform your outdoor space?
             </h2>
           </div>
         </div>
 
-        {/* CEO Quote Card */}
-        <div className="cta-item flex flex-col md:flex-row items-center gap-8 rounded-2xl border border-black/10 bg-black/[0.02] p-8 md:p-12 mb-12 transition-all duration-500 hover:border-sage/20 hover:shadow-lg hover:shadow-sage/5 opacity-0">
+        {/* CEO Quote Card — clip reveal */}
+        <div
+          ref={quoteRef}
+          className="flex flex-col md:flex-row items-center gap-8 rounded-2xl border border-black/10 bg-black/[0.02] p-8 md:p-12 mb-12 transition-all duration-500 hover:border-sage/20 hover:shadow-lg hover:shadow-sage/5 opacity-0"
+        >
           {/* CEO Photo */}
           <div className="shrink-0">
             <div className="relative">
@@ -102,23 +153,25 @@ const CTASection = () => {
           </div>
         </div>
 
-        {/* CTA Button */}
+        {/* CTA Buttons — magnetic primary */}
         <div className="cta-item flex flex-col sm:flex-row items-center gap-4 opacity-0">
           <a
+            ref={ctaBtnRef}
             href="#contact"
-            className="group flex items-center gap-2 rounded-lg bg-sage px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-white transition-all duration-300 hover:bg-sage-hover hover:shadow-xl hover:shadow-sage/30 hover:scale-[1.02]"
+            data-cursor-text="Let's Talk"
+            className="group relative flex items-center gap-2 rounded-lg bg-sage px-8 py-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-white transition-all duration-300 hover:bg-sage-hover hover:shadow-xl hover:shadow-sage/30 overflow-hidden"
           >
             Book a consultation
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </a>
 
-            <a
-              href="#work"
-              className="group flex items-center gap-2 rounded-lg border border-black/20 bg-transparent px-6 py-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-black transition-all duration-300 hover:border-black/40 hover:bg-black/[0.03] hover:-translate-y-0.5"
-            >
-              View recent projects
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </a>
+          <a
+            href="#work"
+            className="group flex items-center gap-2 rounded-lg border border-black/20 bg-transparent px-6 py-4 text-[12px] font-semibold uppercase tracking-[0.12em] text-black transition-all duration-300 hover:border-black/40 hover:bg-black/[0.03] hover:-translate-y-0.5"
+          >
+            View recent projects
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </a>
         </div>
       </div>
     </section>

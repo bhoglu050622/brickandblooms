@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { clientLogos } from '@/data/clientLogos';
 import { company } from '@/data/company';
+import { splitTextInline } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -85,7 +86,7 @@ const HeroSection = () => {
     }
   };
 
-  // Mouse-reactive parallax on logo + cursor spotlight
+  // Mouse-reactive parallax on multiple depth layers + cursor spotlight
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     const { clientX, clientY } = e;
     const cx = window.innerWidth / 2;
@@ -93,12 +94,22 @@ const HeroSection = () => {
     const dx = (clientX - cx) / cx;
     const dy = (clientY - cy) / cy;
 
-    // Parallax on logo layers — different depths
+    // Layer 1: Video background (very slow — 0.1x depth)
+    if (bgRef.current) {
+      gsap.to(bgRef.current, { x: dx * 4, y: dy * 3, duration: 1.2, ease: 'power2.out' });
+    }
+
+    // Layer 2: Logo text layers (different depths)
     if (logoTextRef1.current) {
       gsap.to(logoTextRef1.current, { x: dx * 15, y: dy * 10, duration: 0.6, ease: 'power2.out' });
     }
     if (logoTextRef2.current) {
       gsap.to(logoTextRef2.current, { x: dx * 25, y: dy * 15, duration: 0.6, ease: 'power2.out' });
+    }
+
+    // Layer 3: Main content (0.6x depth)
+    if (contentRef.current) {
+      gsap.to(contentRef.current, { x: dx * 8, y: dy * 5, duration: 0.8, ease: 'power2.out' });
     }
 
     // Cursor spotlight
@@ -130,19 +141,39 @@ const HeroSection = () => {
       return () => clearInterval(interval);
     }
 
+    // Split logo text into chars for cinematic entrance
+    const brick = logoTextRef1.current;
+    const blooms = logoTextRef2.current;
+    let brickChars: HTMLSpanElement[] = [];
+    let bloomsChars: HTMLSpanElement[] = [];
+    if (brick && blooms) {
+      brickChars = splitTextInline(brick, 'chars');
+      bloomsChars = splitTextInline(blooms, 'chars');
+      gsap.set([...brickChars, ...bloomsChars], { y: 30, rotateX: 15, opacity: 0 });
+    }
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
       // Video fades in
       tl.fromTo(bgRef.current, { opacity: 0 }, { opacity: 1, duration: 2 }, 0);
 
-      // Logo appears with scale + slight rotation
-      tl.fromTo(
-        logoOverlayRef.current,
-        { opacity: 0, scale: 0.85, rotateX: 5 },
-        { opacity: 1, scale: 1, rotateX: 0, duration: 1.6 },
-        0.5
-      );
+      // Logo overlay visible
+      tl.set(logoOverlayRef.current, { opacity: 1 }, 0.5);
+
+      // Logo chars stagger in
+      if (brickChars.length) {
+        tl.to(brickChars, {
+          y: 0, rotateX: 0, opacity: 1,
+          duration: 0.6, stagger: 0.04, ease: 'power3.out',
+        }, 0.6);
+      }
+      if (bloomsChars.length) {
+        tl.to(bloomsChars, {
+          y: 0, rotateX: 0, opacity: 1,
+          duration: 0.6, stagger: 0.03, ease: 'power3.out',
+        }, 0.8);
+      }
 
       // Logo fades out
       tl.to(logoOverlayRef.current, {
@@ -174,7 +205,7 @@ const HeroSection = () => {
         },
       }, 4.0);
 
-      // Scroll: video desaturates as user scrolls past hero
+      // Scroll: video desaturates + vignette darkens as user scrolls past hero
       gsap.to(bgRef.current, {
         filter: 'grayscale(100%) brightness(0.6)',
         ease: 'none',
@@ -351,6 +382,7 @@ const HeroSection = () => {
           <div className="hero-item opacity-0 shrink-0 mb-10 lg:mb-0">
             <button
               onClick={() => setShowReel(true)}
+              data-cursor-text="Play"
               className="group relative w-[240px] md:w-[300px] overflow-hidden rounded-xl"
             >
               <video muted loop playsInline autoPlay className="aspect-[16/9] w-full object-cover transition-transform duration-500 group-hover:scale-105">

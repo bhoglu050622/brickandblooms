@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -6,9 +6,20 @@ import { processSteps } from '@/data/processSteps';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Step gradient backgrounds — each step has its own mood
+const stepGradients = [
+  'linear-gradient(135deg, #1A1A17 0%, #1E2418 30%, #222A1C 50%, #1E2418 70%, #1A1A17 100%)',
+  'linear-gradient(135deg, #1A1A17 0%, #1E2820 30%, #203024 50%, #1E2820 70%, #1A1A17 100%)',
+  'linear-gradient(135deg, #1A1A17 0%, #23201A 30%, #2A251C 50%, #23201A 70%, #1A1A17 100%)',
+  'linear-gradient(135deg, #1A1A17 0%, #1E2220 30%, #222A28 50%, #1E2220 70%, #1A1A17 100%)',
+];
+
 const ProcessSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const stepsContainerRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -47,7 +58,7 @@ const ProcessSection = () => {
         return;
       }
 
-      // Desktop: pinned sequential reveal
+      // Desktop: pinned sequential reveal with gradient shift
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
@@ -56,10 +67,32 @@ const ProcessSection = () => {
           pin: true,
           scrub: 0.8,
           anticipatePin: 1,
+          onUpdate: (self) => {
+            // Update step counter based on scroll progress
+            const stepIndex = Math.min(
+              steps.length - 1,
+              Math.floor(self.progress * steps.length)
+            );
+            setActiveStep(stepIndex);
+          },
         },
       });
 
+      // Progress line fill
+      if (progressRef.current) {
+        tl.fromTo(progressRef.current, { scaleX: 0 }, { scaleX: 1, ease: 'none', duration: steps.length * 0.5 }, 0);
+      }
+
       steps.forEach((step, i) => {
+        // Background gradient shift per step
+        if (bgRef.current && stepGradients[i]) {
+          tl.to(bgRef.current, {
+            background: stepGradients[i],
+            duration: 0.3,
+            ease: 'power1.inOut',
+          }, i * 0.5);
+        }
+
         // Fade in current step
         tl.fromTo(
           step,
@@ -95,10 +128,15 @@ const ProcessSection = () => {
     <section
       ref={sectionRef}
       className="relative w-full overflow-hidden"
-      style={{
-        background: 'linear-gradient(135deg, #1A1A17 0%, #1E2418 30%, #222A1C 50%, #1E2418 70%, #1A1A17 100%)',
-      }}
     >
+      {/* Animated background gradient */}
+      <div
+        ref={bgRef}
+        className="absolute inset-0"
+        style={{
+          background: stepGradients[0],
+        }}
+      />
       {/* Gradient overlay */}
       <div
         className="absolute inset-0 opacity-40"
@@ -109,10 +147,29 @@ const ProcessSection = () => {
 
       <div className="relative z-10 mx-auto max-w-[1400px] px-6 lg:px-12 py-24 min-h-screen flex flex-col justify-center">
         {/* Header */}
-        <div className="mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/50">
             HOW WE WORK
           </span>
+          {/* Step counter */}
+          <div className="hidden md:flex items-center gap-3">
+            <span className="text-[32px] font-bold text-sage tabular-nums leading-none">
+              {String(activeStep + 1).padStart(2, '0')}
+            </span>
+            <span className="text-[14px] text-white/30 font-medium">/</span>
+            <span className="text-[14px] text-white/30 font-medium tabular-nums">
+              {String(processSteps.length).padStart(2, '0')}
+            </span>
+          </div>
+        </div>
+
+        {/* Progress line */}
+        <div className="hidden md:block mb-8 h-px w-full bg-white/10 overflow-hidden">
+          <div
+            ref={progressRef}
+            className="h-full bg-sage/50 origin-left"
+            style={{ transform: 'scaleX(0)' }}
+          />
         </div>
 
         <div className="flex items-start justify-between mb-12">

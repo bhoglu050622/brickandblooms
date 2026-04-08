@@ -131,6 +131,20 @@ const WorkSection = () => {
           },
         });
       });
+
+      // Tech badges parallax (fastest layer — creates depth)
+      section.querySelectorAll('.project-tech').forEach((tech) => {
+        gsap.to(tech, {
+          y: '-8%',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: tech.closest('.project-card'),
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1,
+          },
+        });
+      });
     }, section);
 
     return () => ctx.revert();
@@ -152,6 +166,7 @@ const WorkSection = () => {
           {projects.map((project) => (
             <div
               key={project.id}
+              data-cursor-text="View"
               className="project-card group relative cursor-pointer rounded-2xl opacity-0"
               style={{ willChange: 'transform, filter', transformStyle: 'preserve-3d' }}
               onMouseMove={(e) => {
@@ -189,7 +204,7 @@ const WorkSection = () => {
                 {/* Bottom - Title, Subtitle, Tech */}
                 <div>
                   {/* Tech stack */}
-                  <div className="hidden md:flex flex-wrap gap-x-3 gap-y-1 mb-3">
+                  <div className="project-tech hidden md:flex flex-wrap gap-x-3 gap-y-1 mb-3">
                     {project.tech.map((tech, i) => (
                       <span
                         key={i}

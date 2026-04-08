@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
 import { services } from '@/data/services';
+import { splitTextReveal } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -76,7 +77,7 @@ const ServicesSection = () => {
         });
       });
 
-      // Timeline dots pulse in
+      // Timeline dots pulse in with glow ring
       section.querySelectorAll('.service-dot').forEach((dot) => {
         gsap.fromTo(
           dot,
@@ -90,9 +91,33 @@ const ServicesSection = () => {
               start: 'top 80%',
               end: 'top 65%',
               scrub: 0.3,
+              onEnter: () => {
+                // Glow ring that expands and fades
+                const ring = document.createElement('div');
+                ring.style.cssText = 'position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(124,140,110,0.6);pointer-events:none;';
+                (dot as HTMLElement).style.position = 'relative';
+                dot.appendChild(ring);
+                gsap.fromTo(ring,
+                  { scale: 1, opacity: 1 },
+                  { scale: 2.5, opacity: 0, duration: 0.8, ease: 'power2.out', onComplete: () => ring.remove() }
+                );
+              },
             },
           }
         );
+      });
+
+      // Split text reveal on service card titles
+      const titleContexts: gsap.Context[] = [];
+      section.querySelectorAll('.service-title').forEach((title) => {
+        const titleCtx = splitTextReveal(title as HTMLElement, title.closest('.service-item') || section, {
+          mode: 'words',
+          duration: 0.5,
+          stagger: 0.06,
+          y: 30,
+          start: 'top 75%',
+        });
+        titleContexts.push(titleCtx);
       });
 
       // Staggered feature reveals within each card
@@ -149,7 +174,9 @@ const ServicesSection = () => {
       }
     }, section);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -259,7 +286,7 @@ const ServicesSection = () => {
                     </div>
 
                     {/* Title + Description */}
-                    <h3 className="mb-2 text-[24px] md:text-[28px] font-medium leading-tight tracking-tight text-black">
+                    <h3 className="service-title mb-2 text-[24px] md:text-[28px] font-medium leading-tight tracking-tight text-black">
                       {service.title}
                     </h3>
                     <p className="mb-5 text-[13px] leading-relaxed text-black/50">

@@ -2,34 +2,86 @@ import { useEffect, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { clipRevealDirectional, splitTextReveal } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
 import { team } from '@/data/team';
 
+const directions = ['left', 'right', 'top', 'bottom'] as const;
+
 const TeamSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const contexts: gsap.Context[] = [];
+
+    if (prefersReduced) {
+      section.querySelectorAll('.team-item').forEach((el) => gsap.set(el, { opacity: 1 }));
+      if (headingRef.current) gsap.set(headingRef.current, { opacity: 1 });
+      return;
+    }
+
+    // Split text reveal on section heading
+    if (headingRef.current) {
+      const headCtx = splitTextReveal(headingRef.current, section, {
+        mode: 'words',
+        duration: 0.6,
+        stagger: 0.08,
+        y: 35,
+        start: 'top 80%',
+      });
+      contexts.push(headCtx);
+    }
+
     const ctx = gsap.context(() => {
+      // Directional clip reveal for each team card — alternating directions
+      const items = section.querySelectorAll('.team-item');
+      items.forEach((item, i) => {
+        const dir = directions[i % directions.length];
+        const itemCtx = clipRevealDirectional(item, section, dir, {
+          duration: 1.0,
+          start: 'top 75%',
+          delay: i * 0.12,
+        });
+        contexts.push(itemCtx);
+
+        // Image bounce on enter
+        const img = item.querySelector('.team-photo');
+        if (img) {
+          gsap.fromTo(img,
+            { scale: 1.1 },
+            {
+              scale: 1,
+              duration: 0.8,
+              ease: 'elastic.out(1, 0.6)',
+              scrollTrigger: { trigger: item, start: 'top 75%' },
+              delay: i * 0.12 + 0.3,
+            }
+          );
+        }
+      });
+
+      // Bottom section fade in
       gsap.fromTo(
-        section.querySelectorAll('.team-item'),
-        { y: 50, opacity: 0 },
+        section.querySelector('.team-bottom'),
+        { y: 30, opacity: 0 },
         {
-          y: 0,
-          opacity: 1,
-          duration: 0.7,
-          stagger: 0.1,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: section, start: 'top 70%' },
+          y: 0, opacity: 1, duration: 0.7, ease: 'power2.out',
+          scrollTrigger: { trigger: section.querySelector('.team-bottom'), start: 'top 85%' },
         }
       );
     }, section);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      contexts.forEach((c) => c.revert());
+    };
   }, []);
 
   return (
@@ -41,7 +93,7 @@ const TeamSection = () => {
         </div>
         <div className="flex items-start justify-between mb-16">
           <div>
-            <h2 className="mb-4 text-[32px] md:text-[44px] font-medium leading-[1.1] tracking-tight text-white">
+            <h2 ref={headingRef} className="mb-4 text-[32px] md:text-[44px] font-medium leading-[1.1] tracking-tight text-white">
               No serious faces. Real serious work.
             </h2>
             <p className="max-w-[460px] text-[14px] leading-relaxed text-white/50">
@@ -95,7 +147,7 @@ const TeamSection = () => {
                   <img
                     src={member.image}
                     alt={member.name}
-                    className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
+                    className="team-photo h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-hover:scale-105"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-700 to-gray-900">
@@ -108,7 +160,7 @@ const TeamSection = () => {
         </div>
 
         {/* Bottom section */}
-        <div className="team-item grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-white/10 pt-12 opacity-0">
+        <div className="team-bottom grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-white/10 pt-12 opacity-0">
           <div>
             <p className="text-[14px] leading-relaxed text-white/60">
               Our leadership team involved from{' '}
