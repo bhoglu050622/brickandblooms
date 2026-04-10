@@ -356,7 +356,7 @@ const HeroSection = () => {
       >
         <div className="flex min-w-0 flex-1 flex-col pt-20 lg:pt-24">
           {/* Hero Headline - Enhanced Typography */}
-          <div className="mb-8 min-w-0 lg:mb-12">
+          <div className="hidden sm:block mb-8 min-w-0 lg:mb-12">
             <h1 className="text-display font-black tracking-tighter leading-none text-shadow-hero w-full flex flex-col sm:flex-row sm:flex-wrap sm:gap-[0.2em]">
               {company.heroHeadline.map((word, index) => (
                 <span key={index} className="overflow-hidden block max-w-full sm:inline-block pb-1 sm:pb-2 lg:pb-4">
