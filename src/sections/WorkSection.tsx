@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { projects } from '@/data/projects';
-import { NATURE } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -32,183 +31,71 @@ function scrambleText(element: HTMLElement, finalText: string, duration = 400) {
 
 const WorkSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const pinRef = useRef<HTMLDivElement>(null);
-  const slidesRef = useRef<(HTMLDivElement | null)[]>([]);
-  const progressRef = useRef<HTMLDivElement>(null);
-  const counterTopRef = useRef<HTMLDivElement>(null);
-  const [activeProject, setActiveProject] = useState(0);
-
-  // Counter strip for slot-machine roll
-  const buildCounterStrip = (container: HTMLDivElement) => {
-    container.innerHTML = '';
-    container.style.overflow = 'hidden';
-    container.style.height = '1em';
-    container.style.lineHeight = '1';
-
-    const strip = document.createElement('div');
-    strip.style.display = 'flex';
-    strip.style.flexDirection = 'column';
-    strip.style.willChange = 'transform';
-
-    projects.forEach((_, i) => {
-      const digit = document.createElement('span');
-      digit.textContent = String(i + 1).padStart(2, '0');
-      digit.style.height = '1em';
-      digit.style.lineHeight = '1';
-      digit.style.display = 'block';
-      strip.appendChild(digit);
-    });
-
-    container.appendChild(strip);
-    return strip;
-  };
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const section = sectionRef.current;
-    const pin = pinRef.current;
-    if (!section || !pin) return;
+    if (!section) return;
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isMobile = window.innerWidth < 768;
 
     if (prefersReduced) {
-      slidesRef.current.forEach((slide) => {
-        if (slide) gsap.set(slide, { opacity: 1, clipPath: 'none' });
+      cardsRef.current.forEach((card) => {
+        if (card) gsap.set(card, { opacity: 1, y: 0 });
       });
       return;
     }
 
-    const slides = slidesRef.current.filter(Boolean) as HTMLDivElement[];
-
-    // Build counter strips
-    let counterStrip: HTMLDivElement | null = null;
-    if (counterTopRef.current && !isMobile) {
-      counterStrip = buildCounterStrip(counterTopRef.current) as HTMLDivElement;
-    }
-
-    if (isMobile) {
-      const ctx = gsap.context(() => {
-        slides.forEach((slide) => {
-          gsap.fromTo(slide,
-            { opacity: 0, rotateY: 8, transformPerspective: 1200 },
-            {
-              opacity: 1, rotateY: 0,
-              duration: NATURE.duration.slow,
-              ease: NATURE.ease.grow,
-              scrollTrigger: { trigger: slide, start: 'top 85%' },
-            }
-          );
-        });
-      }, section);
-      return () => ctx.revert();
-    }
-
-    // Desktop: full-viewport pinned scroll storytelling
     const ctx = gsap.context(() => {
-      slides.forEach((slide, i) => {
-        // Alternate wipe directions: even = left, odd = right
-        const isEven = i % 2 === 0;
-        if (i === 0) {
-          gsap.set(slide, { opacity: 1, clipPath: 'inset(0% 0% 0% 0%)' });
-        } else {
-          gsap.set(slide, {
-            opacity: 1,
-            clipPath: isEven ? 'inset(0% 100% 0% 0%)' : 'inset(0% 0% 0% 100%)',
+      // Header line reveal
+      const header = section.querySelector('.work-header');
+      if (header) {
+        gsap.fromTo(header,
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
+            scrollTrigger: { trigger: header, start: 'top 85%' } }
+        );
+      }
+
+      // Cards: staggered clip-path reveal from bottom
+      cardsRef.current.forEach((card, i) => {
+        if (!card) return;
+
+        gsap.fromTo(card,
+          { opacity: 0, y: 60, clipPath: 'inset(100% 0% 0% 0%)' },
+          {
+            opacity: 1, y: 0, clipPath: 'inset(0% 0% 0% 0%)',
+            duration: 0.9,
+            delay: i * 0.12,
+            ease: 'power4.out',
+            scrollTrigger: { trigger: section, start: 'top 70%' },
+            onComplete: () => { gsap.set(card, { clipPath: 'none' }); },
+          }
+        );
+
+        // Title scramble on enter
+        const title = card.querySelector('.card-title') as HTMLElement;
+        if (title) {
+          const original = title.textContent || '';
+          ScrollTrigger.create({
+            trigger: section,
+            start: 'top 70%',
+            once: true,
+            onEnter: () => {
+              setTimeout(() => scrambleText(title, original, 400), i * 120 + 300);
+            },
           });
         }
-      });
 
-      const firstContent = slides[0]?.querySelectorAll('.slide-content > *');
-      if (firstContent) gsap.set(firstContent, { opacity: 1, y: 0 });
-
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: 'top top',
-          end: `+=${projects.length * 100}vh`,
-          pin: pin,
-          scrub: 0.8,
-          anticipatePin: 1,
-          onUpdate: (self) => {
-            const idx = Math.min(projects.length - 1, Math.floor(self.progress * projects.length));
-            setActiveProject(idx);
-
-            if (progressRef.current) {
-              progressRef.current.style.transform = `scaleX(${self.progress})`;
-            }
-
-            // Roll counter strip
-            if (counterStrip) {
-              gsap.to(counterStrip, {
-                y: `-${idx}em`,
-                duration: 0.3,
-                ease: 'back.out(1.5)',
-                overwrite: true,
-              });
-            }
-          },
-        },
-      });
-
-      slides.forEach((slide, i) => {
-        if (i === 0) return;
-
-        const prevSlide = slides[i - 1];
-        const prevBg = prevSlide.querySelector('.slide-bg') as HTMLElement;
-        const prevContent = prevSlide.querySelectorAll('.slide-content > *');
-        const nextContent = slide.querySelectorAll('.slide-content > *');
-        gsap.set(nextContent, { opacity: 0, y: 40 });
-
-        const pos = (i - 1) * 1;
-
-        if (prevBg) {
-          tl.to(prevBg, { scale: 1.08, duration: 0.6, ease: 'none' }, pos);
-        }
-
-        tl.to(prevContent, {
-          opacity: 0, y: -30, duration: 0.3, stagger: 0.03, ease: NATURE.ease.slow,
-        }, pos);
-
-        // Alternating wipe direction
-        tl.to(slide, {
-          clipPath: 'inset(0% 0% 0% 0%)',
-          duration: 0.5,
-          ease: NATURE.ease.grow,
-        }, pos + 0.25);
-
-        // Title scramble after slide appears
-        const titleEl = slide.querySelector('.slide-title') as HTMLElement;
-        if (titleEl) {
-          const originalText = titleEl.textContent || '';
-          tl.call(() => { scrambleText(titleEl, originalText, 400); }, undefined, pos + 0.45);
-        }
-
-        tl.to(nextContent, {
-          opacity: 1, y: 0, duration: 0.4, stagger: 0.06, ease: NATURE.ease.entrance,
-        }, pos + 0.5);
-
-        if (i === slides.length - 1) {
-          tl.to({}, { duration: 0.4 });
-        }
-      });
-
-      // Parallax on slide backgrounds
-      slides.forEach((slide) => {
-        const bg = slide.querySelector('.slide-bg');
-        if (bg) {
-          gsap.fromTo(bg,
-            { y: '5%' },
-            {
-              y: '-5%',
-              ease: 'none',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top top',
-                end: `+=${projects.length * 100}vh`,
-                scrub: 1,
-              },
-            }
-          );
+        // Image scale on hover
+        const img = card.querySelector('.card-img') as HTMLElement;
+        if (img) {
+          card.addEventListener('mouseenter', () => {
+            gsap.to(img, { scale: 1.06, duration: 0.6, ease: 'power2.out' });
+          });
+          card.addEventListener('mouseleave', () => {
+            gsap.to(img, { scale: 1, duration: 0.7, ease: 'power3.out' });
+          });
         }
       });
     }, section);
@@ -217,121 +104,97 @@ const WorkSection = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} id="work" className="w-full bg-[#1A1A17]">
-      <div ref={pinRef} className="relative h-screen w-full overflow-hidden">
-        {/* Section label */}
-        <div className="absolute top-8 left-8 z-30 flex items-center gap-3">
-          <div className="h-px w-12 bg-white/20" />
-          <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/40">SELECTED WORK</span>
-        </div>
+    <section ref={sectionRef} id="work" className="w-full bg-[#1A1A17] py-24 md:py-32">
+      <div className="mx-auto max-w-[1400px] px-6 lg:px-12">
 
-        {/* Project counter: slot-machine odometer */}
-        <div className="absolute top-8 right-8 z-30 flex items-center gap-2">
-          <div
-            ref={counterTopRef}
-            className="text-[28px] font-bold text-white tabular-nums leading-none"
-            style={{ willChange: 'transform' }}
-          >
-            {String(activeProject + 1).padStart(2, '0')}
+        {/* Header */}
+        <div className="work-header mb-16 flex items-end justify-between opacity-0">
+          <div>
+            <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/40">SELECTED WORK</span>
+            <h2 className="mt-3 text-[32px] md:text-[44px] font-medium leading-[1.05] tracking-tight text-white">
+              Projects that speak for themselves
+            </h2>
           </div>
-          <span className="text-[14px] text-white/30 font-medium">/</span>
-          <span className="text-[14px] text-white/30 font-medium tabular-nums">
-            {String(projects.length).padStart(2, '0')}
+          <span className="hidden md:block text-[11px] font-medium text-white/30 tabular-nums">
+            {String(projects.length).padStart(2, '0')} projects
           </span>
         </div>
 
-        {/* Stacked project slides */}
-        {projects.map((project, i) => (
-          <div
-            key={project.id}
-            ref={(el) => { slidesRef.current[i] = el; }}
-            className="absolute inset-0"
-            style={{ zIndex: i + 1 }}
-            data-cursor-text="View"
-            data-cursor-type="play"
-          >
-            {/* Full-bleed background */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="slide-bg absolute inset-0 h-[120%] w-full -top-[10%]">
+        {/* 3-card grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+          {projects.map((project, i) => (
+            <div
+              key={project.id}
+              ref={(el) => { cardsRef.current[i] = el; }}
+              className="group cursor-pointer"
+              data-cursor-type="play"
+              data-cursor-text="View"
+            >
+              {/* Image */}
+              <div className="relative overflow-hidden rounded-2xl aspect-[4/5] bg-[#2A2A25] mb-5">
                 <img
                   src={project.image}
                   alt={project.title}
-                  className="h-full w-full object-cover"
+                  className="card-img h-full w-full object-cover transition-transform duration-700 will-change-transform"
                 />
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A17] via-[#1A1A17]/40 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#1A1A17]/50 to-transparent" />
-            </div>
-
-            {/* Content */}
-            <div className="slide-content absolute bottom-0 left-0 z-10 p-8 md:p-12 lg:p-16 max-w-[650px]">
-              <span className="inline-block text-[10px] font-semibold uppercase tracking-[0.15em] text-sage mb-3 opacity-0">
-                {project.subtitle}
-              </span>
-              <h3
-                className="slide-title text-[36px] sm:text-[48px] md:text-[64px] lg:text-[80px] font-bold text-white leading-[1.0] tracking-tight mb-4 opacity-0"
-              >
-                {project.title}
-              </h3>
-              <p className="text-[13px] md:text-[14px] leading-relaxed text-white/60 mb-6 max-w-[480px] opacity-0">
-                {project.description}
-              </p>
-              <div className="flex flex-wrap gap-x-4 gap-y-1 opacity-0">
-                {project.tech.map((tech, j) => (
-                  <span key={j} className="text-[10px] font-medium text-white/40 tracking-wider">
-                    {tech}
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A17]/70 via-transparent to-transparent" />
+                {/* Year badge */}
+                <div className="absolute top-4 right-4">
+                  <span className="text-[10px] font-semibold text-white/50 tracking-wider bg-[#1A1A17]/60 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                    {project.year}
                   </span>
-                ))}
+                </div>
+                {/* Arrow icon */}
+                <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
+                    <ArrowUpRight className="h-3.5 w-3.5 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Text content */}
+              <div className="px-1">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-sage mb-2 block">
+                  {project.subtitle}
+                </span>
+                <h3 className="card-title text-[22px] md:text-[26px] font-bold text-white leading-tight tracking-tight mb-3 group-hover:text-sage transition-colors duration-300">
+                  {project.title}
+                </h3>
+                <p className="text-[12px] leading-relaxed text-white/50 mb-4 line-clamp-2">
+                  {project.description}
+                </p>
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2">
+                  {project.tech.slice(0, 3).map((tech, j) => (
+                    <span
+                      key={j}
+                      className="text-[9px] font-semibold uppercase tracking-wider text-white/30 border border-white/10 rounded-full px-2.5 py-1"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
-
-            {/* Year */}
-            <div className="absolute top-20 right-8 md:right-12 z-10">
-              <span className="text-[11px] font-medium text-white/30 tracking-wider">{project.year}</span>
-            </div>
-          </div>
-        ))}
-
-        {/* Progress bar */}
-        <div className="absolute bottom-0 left-0 right-0 z-30 h-[2px] bg-white/10">
-          <div
-            ref={progressRef}
-            className="h-full bg-sage/60 origin-left"
-            style={{ transform: 'scaleX(0)' }}
-          />
-        </div>
-
-        {/* Progress dots */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
-          {projects.map((_, i) => (
-            <div
-              key={i}
-              className="h-1 rounded-full transition-all duration-700 ease-nature"
-              style={{
-                width: i === activeProject ? '32px' : '8px',
-                backgroundColor: i === activeProject ? 'rgba(124,140,110,0.8)' : 'rgba(255,255,255,0.2)',
-              }}
-            />
           ))}
         </div>
-      </div>
 
-      {/* Below pinned area */}
-      <div className="mx-auto max-w-[1400px] px-6 lg:px-12 py-12">
-        <div className="flex items-center justify-between">
+        {/* Footer row */}
+        <div className="mt-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-px w-12 bg-white/20" />
             <span className="text-[11px] font-medium text-white/40">2021 — 2026</span>
           </div>
           <a
             href="#"
-            className="group flex items-center gap-2.5 rounded-xl border border-white/20 bg-transparent px-6 py-3.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-all duration-1200 ease-nature hover:border-white/40 hover:bg-white/[0.03]"
+            className="group flex items-center gap-2.5 rounded-xl border border-white/20 bg-transparent px-6 py-3.5 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-all duration-300 hover:border-white/40 hover:bg-white/[0.03]"
           >
             More Projects
             <span className="flex h-5 min-w-[20px] items-center justify-center rounded bg-white px-1.5 text-[10px] font-bold text-black">
               5
             </span>
-            <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-nature group-hover:translate-x-1" />
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </a>
         </div>
       </div>
