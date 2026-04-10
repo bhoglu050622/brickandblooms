@@ -137,11 +137,11 @@ const StatsSection = () => {
         // Burst scale entrance
         if (numEl) {
           gsap.fromTo(numEl,
-            { scale: 2.2, opacity: 0, y: 10 },
+            { scale: 1.3, opacity: 0, y: 10 },
             {
               scale: 1, opacity: 1, y: 0,
               duration: 0.45,
-              ease: 'back.out(2)',
+              ease: 'power4.out',
               delay: i * 0.12,
               scrollTrigger: { trigger: section, start: 'top 75%', once: true },
             }
@@ -191,25 +191,17 @@ const StatsSection = () => {
         });
         contexts.push(rollCtx);
 
-        // Ambient glow pulse after counter finishes
+        // Ambient glow pulse — inside ctx so it cleans up properly on unmount
         const countEl = el.closest('.stat-item')?.querySelector('.stat-number-glow');
         if (countEl) {
-          ScrollTrigger.create({
-            trigger: section,
-            start: 'top 75%',
-            once: true,
-            onEnter: () => {
-              setTimeout(() => {
-                gsap.to(countEl, {
-                  textShadow: '0 0 30px rgba(124,140,110,0.35)',
-                  duration: 1.5,
-                  ease: 'sine.inOut',
-                  yoyo: true,
-                  repeat: -1,
-                  delay: 1.8 + i * 0.12,
-                });
-              }, 0);
-            },
+          gsap.to(countEl, {
+            textShadow: '0 0 30px rgba(124,140,110,0.35)',
+            duration: 1.5,
+            ease: 'sine.inOut',
+            yoyo: true,
+            repeat: -1,
+            delay: 1.8 + i * 0.12,
+            scrollTrigger: { trigger: section, start: 'top 75%', once: true },
           });
         }
       });
@@ -263,7 +255,7 @@ const StatsSection = () => {
 
       {/* Stats Grid */}
       <div className="relative z-10 mx-auto max-w-[1400px] px-6 lg:px-12 pb-12">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-6 lg:grid-cols-4 lg:gap-8">
           {stats.map((stat, index) => (
             <div key={index} className="stat-item relative overflow-hidden">
               {/* Radial bloom element */}

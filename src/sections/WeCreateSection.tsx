@@ -40,12 +40,16 @@ const textLines = [
   { text: 'outdoor spaces', color: 'text-black/70', enterFrom: 'center' },
 ];
 
-const directionInitial: Record<string, { x?: number; y?: number; scale?: number }> = {
-  left: { x: -120, y: 0 },
-  right: { x: 120, y: 0 },
-  top: { x: 0, y: -80 },
-  bottom: { x: 0, y: 80 },
-  center: { x: 0, y: 0, scale: 0.6 },
+const getDirectionInitial = (): Record<string, { x?: number; y?: number; scale?: number }> => {
+  const hw = Math.max(40, Math.min(140, window.innerWidth * 0.15));
+  const vh = Math.max(40, Math.min(140, window.innerHeight * 0.08));
+  return {
+    left: { x: -hw, y: 0 },
+    right: { x: hw, y: 0 },
+    top: { x: 0, y: -vh },
+    bottom: { x: 0, y: vh },
+    center: { x: 0, y: 0, scale: 0.6 },
+  };
 };
 
 const WeCreateSection = () => {
@@ -76,7 +80,7 @@ const WeCreateSection = () => {
         const finalText = textEl.dataset.text || '';
         const chars = splitTextInline(textEl, 'chars');
         const dir = textLines[li]?.enterFrom || 'bottom';
-        const init = directionInitial[dir] || { y: 60 };
+        const init = getDirectionInitial()[dir] || { y: 60 };
         gsap.set(chars, { ...init, opacity: 0 });
         (textEl as HTMLElement & { _finalText: string })._finalText = finalText;
         lineChars.push(chars);
@@ -253,10 +257,10 @@ const WeCreateSection = () => {
 
       <style>{`
         @keyframes dropFall {
-          0% { transform: translateY(-100px) rotate(0deg); opacity: 0; }
+          0% { transform: translateY(-150px) rotate(0deg); opacity: 0; }
           8% { opacity: 1; }
           88% { opacity: 0.8; }
-          100% { transform: translateY(calc(100vh + 100px)) rotate(5deg); opacity: 0; }
+          100% { transform: translateY(calc(100vh + 150px)) rotate(5deg); opacity: 0; }
         }
       `}</style>
 
@@ -265,8 +269,8 @@ const WeCreateSection = () => {
         {textLines.map((line, index) => (
           <div
             key={index}
-            className={`line text-[40px] sm:text-[56px] md:text-[80px] lg:text-[110px] xl:text-[130px] font-extrabold leading-[0.95] tracking-tight ${line.color} opacity-0`}
-            style={{ perspective: '600px' }}
+            className={`line font-extrabold leading-[0.95] tracking-tight ${line.color} opacity-0`}
+            style={{ fontSize: 'clamp(2.2rem, 12vw, 8.125rem)', perspective: '600px' }}
           >
             <span className="scramble-target" data-text={line.text}>
               {line.text}

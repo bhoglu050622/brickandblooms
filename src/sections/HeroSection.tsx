@@ -151,6 +151,9 @@ const HeroSection = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLSpanElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
+  const bgXTo = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
+  const bgYTo = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
+  const spotlightRafPending = useRef(false);
 
   const prefersReduced =
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -170,14 +173,21 @@ const HeroSection = () => {
     const dx = (clientX - cx) / cx;
     const dy = (clientY - cy) / cy;
 
-    // Background only — translating the whole hero content caused horizontal clipping (120+, showreel) with overflow-x-clip
-    if (bgRef.current) {
-      gsap.to(bgRef.current, { x: dx * 3, y: dy * 2, duration: 1.2, ease: 'power2.out' });
-    }
+    // Background only — quickTo avoids creating a new tween on every mousemove (no stutter)
+    bgXTo.current?.(dx * 3);
+    bgYTo.current?.(dy * 2);
 
-    // Cursor spotlight
-    if (spotlightRef.current) {
-      spotlightRef.current.style.background = `radial-gradient(600px circle at ${clientX}px ${clientY}px, rgba(124,140,110,0.06), transparent 60%)`;
+    // Cursor spotlight — RAF-throttled to prevent GPU texture regen every event
+    if (!spotlightRafPending.current) {
+      spotlightRafPending.current = true;
+      const x = clientX;
+      const y = clientY;
+      requestAnimationFrame(() => {
+        if (spotlightRef.current) {
+          spotlightRef.current.style.background = `radial-gradient(600px circle at ${x}px ${y}px, rgba(124,140,110,0.06), transparent 60%)`;
+        }
+        spotlightRafPending.current = false;
+      });
     }
   }, []);
 
@@ -203,6 +213,12 @@ const HeroSection = () => {
       return () => clearInterval(interval);
     }
 
+    // Set up quickTo refs for lag-free mouse parallax (one instance, reused on every mousemove)
+    if (bgRef.current) {
+      bgXTo.current = gsap.quickTo(bgRef.current, 'x', { duration: 0.8, ease: 'power2.out' });
+      bgYTo.current = gsap.quickTo(bgRef.current, 'y', { duration: 0.8, ease: 'power2.out' });
+    }
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: NATURE.ease.entrance } });
 
@@ -215,7 +231,7 @@ const HeroSection = () => {
       // Staggered Masked Split-Text Reveal for Headline
       tl.fromTo(
         '.word-anim',
-        { y: '120%', opacity: 0, rotationZ: 8 },
+        { y: '120%', opacity: 0, rotationZ: 3 },
         { y: '0%', opacity: 1, rotationZ: 0, duration: 1.2, stagger: 0.12, ease: 'power4.out' },
         3.1
       );
@@ -232,7 +248,7 @@ const HeroSection = () => {
       tl.to(counterObj, {
         val: 120,
         duration: 2.5,
-        ease: 'elastic.out(1, 0.5)',
+        ease: 'power3.out',
         onUpdate: () => {
           if (counterRef.current) counterRef.current.textContent = Math.round(counterObj.val) + '+';
         },
@@ -340,7 +356,8 @@ const HeroSection = () => {
       {!prefersReduced && (
         <button
           onClick={toggleAudio}
-          className="absolute bottom-6 left-6 z-20 flex items-center gap-2 rounded-full bg-[#1A1A17]/60 backdrop-blur-xl border border-white/10 px-4 py-2 text-white/50 transition-all duration-1200 ease-nature hover:bg-[#1A1A17]/80 hover:text-white/80"
+          className="absolute left-6 z-20 flex items-center gap-2 rounded-full bg-[#1A1A17]/60 backdrop-blur-xl border border-white/10 px-4 py-2 text-white/50 transition-all duration-1200 ease-nature hover:bg-[#1A1A17]/80 hover:text-white/80"
+          style={{ bottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
         >
           {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
           <span className="text-[10px] font-medium uppercase tracking-[0.1em]">

@@ -64,7 +64,7 @@ function App() {
       };
       lenisTickerRef.current = onLenisTicker;
       gsap.ticker.add(onLenisTicker);
-      gsap.ticker.lagSmoothing(0);
+      gsap.ticker.lagSmoothing(500, 33);
 
       // Lenis does not always emit `scroll` on first paint — without this, scrubbed
       // ScrollTriggers (e.g. hero video) stay wrong until the user scrolls once.

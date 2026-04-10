@@ -62,9 +62,9 @@ const WorkSection = () => {
         if (!card) return;
 
         gsap.fromTo(card,
-          { opacity: 0, y: 60, clipPath: 'inset(100% 0% 0% 0%)' },
+          { opacity: 0, y: 60, scale: 0.96, clipPath: 'inset(100% 0% 0% 0%)' },
           {
-            opacity: 1, y: 0, clipPath: 'inset(0% 0% 0% 0%)',
+            opacity: 1, y: 0, scale: 1, clipPath: 'inset(0% 0% 0% 0%)',
             duration: 0.9,
             delay: i * 0.12,
             ease: 'power4.out',

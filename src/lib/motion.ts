@@ -80,7 +80,7 @@ export function parallax(
   trigger: Element,
   amount: string = '-15%'
 ): gsap.Context {
-  if (prefersReduced()) return gsap.context(() => {}, trigger);
+  if (prefersReduced() || isTouchDevice()) return gsap.context(() => {}, trigger);
 
   return gsap.context(() => {
     gsap.to(element, {
@@ -106,8 +106,9 @@ export function clipReveal(
   return gsap.context(() => {
     gsap.fromTo(
       element,
-      { clipPath: 'inset(10% 10% 10% 10%)', opacity: 0 },
-      { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration, ease: 'power3.out', scrollTrigger: { trigger, start } }
+      { clipPath: 'inset(10% 10% 10% 10%)', opacity: 0, willChange: 'transform, clip-path, opacity' },
+      { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration, ease: 'power3.out', scrollTrigger: { trigger, start },
+        onComplete: () => { gsap.set(element, { willChange: 'auto' }); } }
     );
   }, trigger);
 }
@@ -200,7 +201,7 @@ export function cinematicReveal(
   return gsap.context(() => {
     gsap.fromTo(
       element,
-      { clipPath: clipStartStates[direction], opacity: 0, scale: 1.05 },
+      { clipPath: clipStartStates[direction], opacity: 0, scale: 1.05, willChange: 'transform, clip-path, opacity' },
       {
         clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, scale: 1,
         duration, ease: NATURE.ease.grow, delay,
@@ -236,8 +237,9 @@ export function clipRevealDirectional(
   return gsap.context(() => {
     gsap.fromTo(
       element,
-      { clipPath: clipStartStates[direction], opacity: 0 },
-      { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration, ease, delay, scrollTrigger: { trigger, start } }
+      { clipPath: clipStartStates[direction], opacity: 0, willChange: 'transform, clip-path, opacity' },
+      { clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, duration, ease, delay, scrollTrigger: { trigger, start },
+        onComplete: () => { gsap.set(element, { willChange: 'auto' }); } }
     );
   }, trigger);
 }
