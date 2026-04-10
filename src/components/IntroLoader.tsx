@@ -9,6 +9,7 @@ const IntroLoader = ({ onComplete }: IntroLoaderProps) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const taglineRef = useRef<HTMLParagraphElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
   const [removed, setRemoved] = useState(false);
 
   useEffect(() => {
@@ -20,10 +21,19 @@ const IntroLoader = ({ onComplete }: IntroLoaderProps) => {
       return;
     }
 
+    // Skip on repeat visits
+    if (localStorage.getItem('bb_intro_seen')) {
+      onComplete();
+      setRemoved(true);
+      return;
+    }
+
     const tl = gsap.timeline({
       onComplete: () => {
+        localStorage.setItem('bb_intro_seen', '1');
         onComplete();
-        setRemoved(true);
+        // Keep it in DOM slightly longer so the wipe clears cleanly
+        setTimeout(() => setRemoved(true), 200);
       },
     });
 
@@ -42,14 +52,34 @@ const IntroLoader = ({ onComplete }: IntroLoaderProps) => {
       0.3
     );
 
-    // Hold
-    tl.to({}, { duration: 1 });
+    // Progress bar fills during the hold window
+    if (progressBarRef.current) {
+      tl.fromTo(progressBarRef.current,
+        { scaleX: 0, transformOrigin: 'left center' },
+        { scaleX: 1, duration: 1.5, ease: 'power1.inOut' },
+        0.5
+      );
+    }
 
-    // Fade out overlay
-    tl.to(overlayRef.current, {
+    // Hold for a cinematic beat
+    tl.to({}, { duration: 0.3 });
+
+    // Slide content up first
+    tl.to([logoRef.current, taglineRef.current], {
+      y: -50,
       opacity: 0,
-      duration: 0.5,
-      ease: 'power2.inOut',
+      duration: 0.6,
+      stagger: 0.1,
+      ease: 'power3.in'
+    });
+
+    // Premium Curved Arch wipe up
+    tl.to(overlayRef.current, {
+      yPercent: -100,
+      borderBottomLeftRadius: '50vw 30vh',
+      borderBottomRightRadius: '50vw 30vh',
+      duration: 1.2,
+      ease: 'power4.inOut',
     });
 
     return () => {
@@ -62,7 +92,7 @@ const IntroLoader = ({ onComplete }: IntroLoaderProps) => {
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#1A1A17]"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#1A1A17] will-change-transform origin-top"
     >
       <div ref={logoRef} className="flex items-center opacity-0">
         <span className="text-[36px] sm:text-[48px] font-extrabold tracking-tighter text-sage">
@@ -78,6 +108,14 @@ const IntroLoader = ({ onComplete }: IntroLoaderProps) => {
       >
         A New Way of Living
       </p>
+      {/* Progress bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/10">
+        <div
+          ref={progressBarRef}
+          className="h-full bg-sage"
+          style={{ transform: 'scaleX(0)', transformOrigin: 'left center' }}
+        />
+      </div>
     </div>
   );
 };

@@ -2,37 +2,148 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowUp, ArrowRight } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { breatheScale } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Footer = () => {
+  const footerRef = useRef<HTMLElement>(null);
   const circleRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLSpanElement>(null);
+  const navColsRef = useRef<HTMLDivElement>(null);
+  const socialRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const copyrightRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const newsletterFormRef = useRef<HTMLDivElement>(null);
+  const newsletterSuccessRef = useRef<HTMLDivElement>(null);
+  const newsletterInputRef = useRef<HTMLInputElement>(null);
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!isValid) {
+      setEmailError('Please enter a valid email address.');
+      if (newsletterInputRef.current) {
+        const el = newsletterInputRef.current;
+        const shakeTl = gsap.timeline();
+        shakeTl.to(el, { x: -12, duration: 0.06, ease: 'power2.out' })
+          .to(el, { x: 12, duration: 0.06 })
+          .to(el, { x: -8, duration: 0.06 })
+          .to(el, { x: 8, duration: 0.06 })
+          .to(el, { x: -4, duration: 0.06 })
+          .to(el, { x: 0, duration: 0.08, ease: 'power2.in' });
+      }
+      return;
+    }
+    setEmailError('');
+    // Animate form out, success in
+    if (newsletterFormRef.current && newsletterSuccessRef.current) {
+      gsap.to(newsletterFormRef.current, {
+        y: -20, opacity: 0, duration: 0.35, ease: 'power2.in',
+        onComplete: () => setSubmitted(true),
+      });
+    } else {
+      setSubmitted(true);
+    }
+  };
 
   useEffect(() => {
-    if (circleRef.current) {
-      gsap.to(circleRef.current, {
-        rotation: 360,
-        duration: 60,
-        repeat: -1,
-        ease: 'none',
-      });
+    const footer = footerRef.current;
+    if (!footer) return;
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cleanups: (() => void)[] = [];
+
+    if (prefersReduced) {
+      gsap.set(footer, { opacity: 1, clipPath: 'none' });
+      if (logoRef.current) gsap.set(logoRef.current, { opacity: 1 });
+      return;
     }
 
+    // Footer: earth-rise wipe from bottom
+    gsap.fromTo(footer,
+      { clipPath: 'inset(30% 0 0 0)' },
+      {
+        clipPath: 'inset(0% 0 0 0)',
+        duration: 1.0,
+        ease: 'power3.inOut',
+        scrollTrigger: { trigger: footer, start: 'top 90%' },
+        onComplete: () => { gsap.set(footer, { clipPath: 'none' }); },
+      }
+    );
+
+    // Logo: crystallize from blur + small scale
     if (logoRef.current) {
       gsap.fromTo(logoRef.current,
-        { y: -40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, ease: 'bounce.out',
-          scrollTrigger: { trigger: logoRef.current, start: 'top 85%' }
+        { scale: 0.4, opacity: 0, filter: 'blur(12px)' },
+        {
+          scale: 1, opacity: 1, filter: 'blur(0px)',
+          duration: 1.0,
+          ease: 'power4.out',
+          scrollTrigger: { trigger: logoRef.current, start: 'top 90%' },
         }
       );
     }
+
+    // Nav links: vine-growth stagger (column by column, link by link)
+    if (navColsRef.current) {
+      const columns = navColsRef.current.querySelectorAll('.footer-col');
+      columns.forEach((col, ci) => {
+        const links = col.querySelectorAll('a, p');
+        gsap.fromTo(links,
+          { y: 30, opacity: 0 },
+          {
+            y: 0, opacity: 1,
+            duration: 0.5,
+            ease: 'power2.out',
+            stagger: 0.05,
+            delay: ci * 0.15,
+            scrollTrigger: { trigger: navColsRef.current, start: 'top 85%' },
+          }
+        );
+      });
+    }
+
+    // Social icons: spring pop blossoms
+    socialRefs.current.forEach((icon, i) => {
+      if (!icon) return;
+      gsap.fromTo(icon,
+        { scale: 0, opacity: 0 },
+        {
+          scale: 1, opacity: 1,
+          duration: 0.4,
+          ease: 'back.out(3)',
+          delay: i * 0.08,
+          scrollTrigger: { trigger: icon, start: 'top 90%' },
+        }
+      );
+    });
+
+    // Rotating circle + breathe scale layered
+    if (circleRef.current) {
+      gsap.to(circleRef.current, { rotation: 360, duration: 60, repeat: -1, ease: 'none' });
+      const cleanup = breatheScale(circleRef.current, { min: 1.0, max: 1.04, duration: 5 });
+      cleanups.push(cleanup);
+    }
+
+    // Copyright: late quiet fade
+    if (copyrightRef.current) {
+      gsap.fromTo(copyrightRef.current,
+        { opacity: 0 },
+        {
+          opacity: 1, duration: 0.6,
+          delay: 0.8,
+          scrollTrigger: { trigger: copyrightRef.current, start: 'top 95%' },
+        }
+      );
+    }
+
+    return () => cleanups.forEach((c) => c());
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   const navLinks = [
     { label: 'HOME', href: '#' },
@@ -56,7 +167,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="relative w-full bg-white">
+    <footer ref={footerRef} className="relative w-full bg-white" style={{ clipPath: 'inset(30% 0 0 0)' }}>
       {/* Newsletter Section */}
       <div className="border-t border-black/10 py-16">
         <div className="mx-auto max-w-[1400px] px-6 lg:px-12">
@@ -70,39 +181,49 @@ const Footer = () => {
               </p>
             </div>
             <div>
-              <form onSubmit={(e) => e.preventDefault()} className="flex gap-3">
-                <input
-                  type="email"
-                  placeholder="Enter Your Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 rounded-lg border border-black/15 bg-transparent px-4 py-3 text-[13px] text-black placeholder:text-black/30 outline-none focus:border-sage transition-colors"
-                />
-                <button
-                  type="submit"
-                  className="group flex items-center gap-2 rounded-lg bg-sage px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-sage-hover shrink-0"
+              {!submitted ? (
+                <div ref={newsletterFormRef}>
+                  <form onSubmit={handleNewsletterSubmit} className="flex gap-3">
+                    <input
+                      ref={newsletterInputRef}
+                      type="email"
+                      placeholder="Enter Your Email"
+                      value={email}
+                      onChange={(e) => { setEmail(e.target.value); setEmailError(''); }}
+                      className={`newsletter-input flex-1 rounded-lg border bg-transparent px-4 py-3 text-[13px] text-black placeholder:text-black/30 outline-none focus:border-sage focus:shadow-[0_0_20px_rgba(124,140,110,0.15)] transition-all duration-300 ${emailError ? 'border-red-400' : 'border-black/15'}`}
+                    />
+                    <button
+                      type="submit"
+                      className="group flex items-center gap-2 rounded-lg bg-sage px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-sage-hover shrink-0"
+                    >
+                      JOIN OUR NEWSLETTER
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                    </button>
+                  </form>
+                  {emailError && <p className="mt-2 text-[11px] text-red-500">{emailError}</p>}
+                  <p className="mt-3 text-[10px] text-black/30">By submitting, you agree to our Terms & Service.</p>
+                  <p className="text-[10px] text-black/30">* No spam, just awesome updates.</p>
+                </div>
+              ) : (
+                <div
+                  ref={newsletterSuccessRef}
+                  className="py-4"
+                  style={{ animation: 'fadeInUp 0.5s ease forwards' }}
                 >
-                  JOIN OUR NEWSLETTER
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                </button>
-              </form>
-              <p className="mt-3 text-[10px] text-black/30">
-                By submitting, you agree to our Terms & Service.
-              </p>
-              <p className="text-[10px] text-black/30">
-                * No spam, just awesome updates.
-              </p>
+                  <p className="text-[18px] font-medium text-sage">You're on our list.</p>
+                  <p className="mt-1 text-[13px] text-black/50">Expect the good stuff — no noise.</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation + Links */}
+      {/* Navigation + Links — vine-growth stagger */}
       <div className="border-t border-black/10 py-12">
         <div className="mx-auto max-w-[1400px] px-6 lg:px-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {/* Navigate */}
-            <div>
+          <div ref={navColsRef} className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="footer-col">
               <h4 className="mb-4 text-[11px] font-semibold text-black/40">Navigate</h4>
               <div className="space-y-2.5">
                 {navLinks.map((link) => (
@@ -110,6 +231,7 @@ const Footer = () => {
                     key={link.label}
                     href={link.href}
                     className="block text-[12px] font-semibold uppercase tracking-[0.08em] text-black/70 transition-colors hover:text-sage"
+                    style={{ opacity: 0 }}
                   >
                     {link.label}
                   </a>
@@ -117,8 +239,7 @@ const Footer = () => {
               </div>
             </div>
 
-            {/* Links */}
-            <div>
+            <div className="footer-col">
               <h4 className="mb-4 text-[11px] font-semibold text-black/40">Links</h4>
               <div className="space-y-2.5">
                 {legalLinks.map((link) => (
@@ -126,6 +247,7 @@ const Footer = () => {
                     key={link.label}
                     href={link.href}
                     className="block text-[12px] font-semibold uppercase tracking-[0.08em] text-black/70 transition-colors hover:text-sage"
+                    style={{ opacity: 0 }}
                   >
                     {link.label}
                   </a>
@@ -133,17 +255,18 @@ const Footer = () => {
               </div>
             </div>
 
-            {/* Follow */}
-            <div>
+            <div className="footer-col">
               <h4 className="mb-4 text-[11px] font-semibold text-black/40">Follow us on socials</h4>
-              <div className="flex gap-4">
-                {socialLinks.map((link) => (
+              <div className="flex gap-4 flex-wrap">
+                {socialLinks.map((link, i) => (
                   <a
                     key={link.label}
+                    ref={(el) => { socialRefs.current[i] = el; }}
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[13px] font-semibold text-sage transition-colors hover:text-sage-hover"
+                    style={{ opacity: 0, willChange: 'transform' }}
                   >
                     {link.label}
                   </a>
@@ -151,9 +274,8 @@ const Footer = () => {
               </div>
             </div>
 
-            {/* Tagline */}
-            <div>
-              <p className="text-[12px] leading-relaxed text-black/40">
+            <div className="footer-col">
+              <p className="text-[12px] leading-relaxed text-black/40" style={{ opacity: 0 }}>
                 Landscape design, terrace gardens, and outdoor transformations that bring nature closer to you.
               </p>
             </div>
@@ -165,7 +287,7 @@ const Footer = () => {
       <div className="border-t border-black/10 py-16">
         <div className="mx-auto max-w-[1400px] px-6 lg:px-12">
           <div className="flex flex-col items-center justify-between gap-10 md:flex-row">
-            {/* Left: Dotted Circle Animation */}
+            {/* Dotted circle — breathes + rotates */}
             <div className="relative flex h-[140px] w-[140px] items-center justify-center md:h-[180px] md:w-[180px]">
               <div
                 ref={circleRef}
@@ -175,6 +297,7 @@ const Footer = () => {
                   borderRadius: '50%',
                   maskImage: 'radial-gradient(circle, transparent 55%, black 56%)',
                   WebkitMaskImage: 'radial-gradient(circle, transparent 55%, black 56%)',
+                  willChange: 'transform',
                 }}
               />
               <button
@@ -186,10 +309,14 @@ const Footer = () => {
               </button>
             </div>
 
-            {/* Center: Large Logo */}
+            {/* Center: Large Logo — crystallizes into existence */}
             <div className="text-center">
               <div className="flex items-center justify-center gap-1">
-                <span ref={logoRef} className="footer-logo text-[32px] md:text-[44px] lg:text-[56px] font-bold tracking-tight text-sage" style={{ opacity: 0 }}>
+                <span
+                  ref={logoRef}
+                  className="footer-logo text-[32px] md:text-[44px] lg:text-[56px] font-bold tracking-tight text-sage"
+                  style={{ opacity: 0, willChange: 'transform, filter' }}
+                >
                   Brick &amp; Blooms
                 </span>
               </div>
@@ -207,13 +334,15 @@ const Footer = () => {
                 +91 98765 43210
               </a>
               <div className="flex gap-4">
-                {socialLinks.map((link) => (
+                {socialLinks.map((link, i) => (
                   <a
                     key={link.label}
+                    ref={(el) => { socialRefs.current[socialLinks.length + i] = el; }}
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[13px] font-semibold text-sage transition-colors hover:text-sage-hover"
+                    style={{ opacity: 0, willChange: 'transform' }}
                   >
                     {link.label}
                   </a>
@@ -224,24 +353,21 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Bottom Bar */}
+      {/* Bottom Bar — late quiet fade */}
       <div className="border-t border-black/10 py-6">
-        <div className="mx-auto max-w-[1400px] px-6 lg:px-12">
+        <div ref={copyrightRef} className="mx-auto max-w-[1400px] px-6 lg:px-12" style={{ opacity: 0 }}>
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <span className="text-[11px] text-black/30">© 2026 Brick &amp; Blooms — All gardens, all rights.</span>
             </div>
-
             <div className="flex flex-col md:flex-row items-center gap-4">
               <span className="text-[11px] text-black/30">Brick &amp; Blooms — Landscape Design Studio</span>
             </div>
-
             <div className="text-[10px] text-black/25">
               <p><strong>Brick &amp; Blooms</strong></p>
               <p>Terrace &amp; Landscape Studio</p>
               <p>Based in India</p>
             </div>
-
             <div className="text-[10px] text-black/25">
               <p>hello@brickandblooms.in</p>
             </div>

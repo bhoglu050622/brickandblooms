@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Plus, Minus, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { splitTextReveal, circularReveal } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -9,28 +10,141 @@ import { faqs } from '@/data/faqs';
 
 const FAQSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const answerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const iconRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const vineRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const toggleFAQ = (index: number) => {
+    const newOpen = openIndex === index ? null : index;
+
+    // Animate icon rotation
+    iconRefs.current.forEach((icon, i) => {
+      if (!icon) return;
+      if (i === index) {
+        gsap.to(icon, {
+          rotation: newOpen === index ? 135 : 0,
+          duration: 0.3,
+          ease: 'back.out(2)',
+        });
+      }
+    });
+
+    // Close previously open item
+    if (openIndex !== null && openIndex !== index && answerRefs.current[openIndex]) {
+      const closingEl = answerRefs.current[openIndex]!.parentElement as HTMLElement;
+      gsap.to(closingEl, { height: 0, duration: 0.3, ease: 'power3.in', overwrite: true });
+    }
+
+    // Open/close current item with GSAP height animation
+    const wrapper = answerRefs.current[index]?.parentElement as HTMLElement | null;
+    if (wrapper) {
+      if (newOpen === index) {
+        // Open: measure natural height then animate to it
+        gsap.set(wrapper, { height: 'auto', overflow: 'hidden' });
+        const fullHeight = wrapper.offsetHeight;
+        gsap.fromTo(wrapper,
+          { height: 0 },
+          { height: fullHeight, duration: 0.45, ease: 'power3.out', overwrite: true,
+            onComplete: () => { gsap.set(wrapper, { height: 'auto' }); ScrollTrigger.refresh(); }
+          }
+        );
+        // Blur unfurl on answer text
+        const el = answerRefs.current[index]!;
+        gsap.fromTo(el,
+          { opacity: 0, y: -8, filter: 'blur(4px)' },
+          { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.4, ease: 'power2.out', delay: 0.1 }
+        );
+      } else {
+        gsap.to(wrapper, { height: 0, duration: 0.35, ease: 'power3.in', overwrite: true,
+          onComplete: () => ScrollTrigger.refresh()
+        });
+      }
+    }
+
+    setOpenIndex(newOpen);
+  };
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReduced) {
+      section.querySelectorAll('.faq-item').forEach((el) => gsap.set(el, { opacity: 1 }));
+      if (headingRef.current) gsap.set(headingRef.current, { opacity: 1 });
+      return;
+    }
+
+    const contexts: gsap.Context[] = [];
+
+    // Heading: splitTextReveal with rotateX
+    if (headingRef.current) {
+      const headCtx = splitTextReveal(headingRef.current, section, {
+        mode: 'words',
+        duration: 0.6,
+        stagger: 0.08,
+        y: 40,
+        rotateX: 15,
+        ease: 'power3.out',
+        start: 'top 80%',
+      });
+      contexts.push(headCtx);
+    }
+
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        section.querySelectorAll('.faq-item'),
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          stagger: 0.08,
+      // FAQ items: bottom-wipe emergence
+      const faqItems = section.querySelectorAll('.faq-item');
+      faqItems.forEach((item, i) => {
+        gsap.fromTo(item,
+          { clipPath: 'inset(100% 0 0 0)', y: 20, opacity: 0 },
+          {
+            clipPath: 'inset(0% 0 0 0)',
+            y: 0,
+            opacity: 1,
+            duration: 0.65,
+            ease: 'power3.out',
+            delay: i * 0.1,
+            scrollTrigger: { trigger: section, start: 'top 70%' },
+            onComplete: () => { gsap.set(item, { clipPath: 'none' }); },
+          }
+        );
+      });
+
+      // Number badge: circular reveal
+      const badges = section.querySelectorAll('.faq-badge');
+      badges.forEach((badge, i) => {
+        const badgeCtx = circularReveal(badge, section, {
+          duration: 0.3,
+          start: 'top 70%',
+          targetRadius: '50%',
+          delay: i * 0.1 + 0.1,
           ease: 'power2.out',
-          scrollTrigger: { trigger: section, start: 'top 70%' },
-        }
-      );
+        });
+        contexts.push(badgeCtx);
+      });
+
+      // Hover: vine-line on left edge
+      const faqRows = section.querySelectorAll('.faq-row');
+      faqRows.forEach((row, i) => {
+        const vine = vineRefs.current[i];
+        if (!vine) return;
+
+        row.addEventListener('mouseenter', () => {
+          gsap.to(vine, { scaleY: 1, opacity: 1, duration: 0.2, ease: 'power2.out', transformOrigin: 'top center' });
+        });
+        row.addEventListener('mouseleave', () => {
+          gsap.to(vine, { scaleY: 0, opacity: 0, duration: 0.2, ease: 'power2.in', transformOrigin: 'bottom center' });
+        });
+      });
     }, section);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      contexts.forEach((c) => c.revert());
+    };
   }, []);
 
   return (
@@ -44,7 +158,11 @@ const FAQSection = () => {
 
         <div className="flex items-start justify-between mb-12">
           <div>
-            <h2 className="mb-4 text-[32px] md:text-[44px] font-medium leading-[1.1] tracking-tight text-black">
+            <h2
+              ref={headingRef}
+              className="mb-4 text-[32px] md:text-[44px] font-medium leading-[1.1] tracking-tight text-black"
+              style={{ perspective: '800px' }}
+            >
               Clearing doubts and concerns
             </h2>
             <p className="max-w-[460px] text-[14px] leading-relaxed text-black/50">
@@ -73,7 +191,6 @@ const FAQSection = () => {
               <p className="mb-2 text-[12px] text-black/40">
                 Book a quick chat and we'll walk you through how we do things.
               </p>
-              {/* Avatar placeholder */}
               <div className="mt-4 flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-amber-300 to-amber-600 flex items-center justify-center">
                   <span className="text-white font-bold text-[12px]">LB</span>
@@ -97,34 +214,58 @@ const FAQSection = () => {
           <div className="lg:col-span-2 order-1 lg:order-2">
             <div className="divide-y divide-black/10">
               {faqs.map((faq, index) => (
-                <div key={index} className="faq-item opacity-0">
-                  <button
-                    onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                    className="flex w-full items-start justify-between gap-4 py-5 text-left transition-colors hover:bg-black/[0.01]"
-                  >
-                    <span className="text-[15px] font-medium text-black pr-4">
-                      {faq.question}
-                    </span>
-                    {openIndex === index ? (
-                      <Minus className="h-4 w-4 shrink-0 text-sage mt-1" />
-                    ) : (
-                      <Plus className="h-4 w-4 shrink-0 text-black/40 mt-1" />
-                    )}
-                  </button>
+                <div key={index} className="faq-item relative opacity-0">
+                  {/* Vine indicator on left */}
                   <div
-                    className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                      openIndex === index ? 'max-h-[300px] pb-5' : 'max-h-0'
-                    }`}
-                  >
-                    <p className="text-[13px] leading-relaxed text-black/50 pr-8">
-                      {faq.answer}
-                    </p>
+                    ref={(el) => { vineRefs.current[index] = el; }}
+                    className="absolute left-0 top-0 bottom-0 w-[2px] bg-sage rounded-full pointer-events-none"
+                    style={{ transform: 'scaleY(0)', opacity: 0, transformOrigin: 'top center' }}
+                  />
+
+                  <div className="faq-row">
+                    <button
+                      onClick={() => toggleFAQ(index)}
+                      className="flex w-full items-start justify-between gap-4 py-5 text-left pl-4"
+                    >
+                      {/* Number badge with circular reveal */}
+                      <span
+                        className="faq-badge shrink-0 inline-flex h-6 w-6 items-center justify-center rounded-full bg-sage/10 text-[10px] font-semibold text-sage"
+                        style={{ clipPath: 'circle(0% at 50% 50%)' }}
+                      >
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span className="flex-1 text-[15px] font-medium text-black pr-4">
+                        {faq.question}
+                      </span>
+                      {/* Animated icon */}
+                      <div
+                        ref={(el) => { iconRefs.current[index] = el; }}
+                        className="shrink-0 mt-1 h-4 w-4 flex items-center justify-center"
+                        style={{ willChange: 'transform' }}
+                      >
+                        <svg viewBox="0 0 16 16" fill="none" className="h-4 w-4">
+                          <line x1="8" y1="2" x2="8" y2="14" stroke={openIndex === index ? '#7C8C6E' : 'rgba(0,0,0,0.4)'} strokeWidth="1.5" strokeLinecap="round"/>
+                          <line x1="2" y1="8" x2="14" y2="8" stroke={openIndex === index ? '#7C8C6E' : 'rgba(0,0,0,0.4)'} strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                      </div>
+                    </button>
+
+                    {/* Answer: GSAP height animation */}
+                    <div style={{ height: 0, overflow: 'hidden' }}>
+                      <div
+                        ref={(el) => { answerRefs.current[index] = el; }}
+                        className="pl-14 pr-8 pb-5"
+                      >
+                        <p className="text-[13px] leading-relaxed text-black/50">
+                          {faq.answer}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* "Do you still have questions?" */}
             <div className="faq-item mt-8 rounded-2xl border border-black/10 p-6 flex items-center justify-between opacity-0">
               <div>
                 <h3 className="text-[14px] font-semibold text-black">Do you still have questions?</h3>

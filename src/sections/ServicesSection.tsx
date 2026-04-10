@@ -1,328 +1,274 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight } from 'lucide-react';
 import { services } from '@/data/services';
-import { splitTextReveal } from '@/lib/motion';
+import { MagneticButton } from '@/components/MagneticButton';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const ServicesSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
+  const leftColRef = useRef<HTMLDivElement>(null);
+  const rightColRef = useRef<HTMLDivElement>(null);
+  const [, setActiveIndex] = useState(0);
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
 
-    if (prefersReduced) {
-      section.querySelectorAll('.service-item').forEach((el) => {
-        gsap.set(el, { opacity: 1, y: 0 });
-      });
-      section.querySelectorAll('.service-line path').forEach((el) => {
-        gsap.set(el, { strokeDashoffset: 0 });
-      });
-      section.querySelectorAll('.service-dot').forEach((el) => {
-        gsap.set(el, { scale: 1, opacity: 1 });
-      });
-      return;
-    }
+    const isDesktop = window.innerWidth >= 1024;
 
     const ctx = gsap.context(() => {
-      const items = section.querySelectorAll('.service-item');
+      const items = gsap.utils.toArray('.service-text-item') as HTMLElement[];
+      const images = gsap.utils.toArray('.service-image') as HTMLElement[];
+      const vines = gsap.utils.toArray('.vine-indicator') as HTMLElement[];
 
-      items.forEach((item, i) => {
-        const direction = i % 2 === 0 ? -1 : 1;
-
-        // Card slides in from alternating sides with a soft tilt
-        gsap.fromTo(
-          item,
+      // Section entrance: split panels slide from center-out
+      const leftCol = leftColRef.current;
+      const rightCol = rightColRef.current;
+      if (leftCol && isDesktop) {
+        gsap.fromTo(leftCol,
+          { x: -60, opacity: 0, clipPath: 'inset(0 20% 0 0)' },
           {
-            opacity: 0,
-            x: direction * 60,
-            y: 30,
-            rotateZ: direction * 1.5,
-            filter: 'blur(6px)',
-            scale: 0.95,
-          },
-          {
-            opacity: 1,
-            x: 0,
-            y: 0,
-            rotateZ: 0,
-            filter: 'blur(0px)',
-            scale: 1,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: item,
-              start: 'top 90%',
-              end: 'top 45%',
-              scrub: 0.5,
-            },
+            x: 0, opacity: 1, clipPath: 'inset(0 0% 0 0)',
+            duration: 0.9, ease: 'power3.out',
+            scrollTrigger: { trigger: section, start: 'top 80%' },
+            onComplete: () => { gsap.set(leftCol, { clipPath: 'none' }); },
           }
         );
+      }
+      if (rightCol && isDesktop) {
+        gsap.fromTo(rightCol,
+          { x: 60, opacity: 0 },
+          {
+            x: 0, opacity: 1,
+            duration: 0.9, ease: 'power3.out',
+            delay: 0.15,
+            scrollTrigger: { trigger: section, start: 'top 80%' },
+          }
+        );
+      }
 
-        // Fade + shift out as it passes
-        gsap.to(item, {
-          opacity: 0.1,
-          y: -20,
-          scale: 0.98,
-          scrollTrigger: {
+      if (isDesktop) {
+        images.forEach((img, i) => {
+          gsap.set(img, {
+            clipPath: i === 0 ? 'inset(0% 0% 0% 0%)' : 'inset(100% 0% 0% 0%)',
+            scale: i === 0 ? 1 : 1.1,
+            display: 'block',
+          });
+        });
+
+        items.forEach((item, i) => {
+          gsap.set(item, { opacity: i === 0 ? 1 : 0.2, x: i === 0 ? 20 : 0 });
+        });
+
+        // Set vine indicators
+        vines.forEach((v) => gsap.set(v, { scaleY: 0, transformOrigin: 'top center' }));
+        if (vines[0]) gsap.set(vines[0], { scaleY: 1 });
+
+        items.forEach((item, i) => {
+          ScrollTrigger.create({
             trigger: item,
-            start: 'bottom 35%',
-            end: 'bottom 5%',
-            scrub: 0.5,
-          },
-        });
-      });
+            start: 'top 55%',
+            end: 'bottom 55%',
+            onToggle: (self) => {
+              if (self.isActive) {
+                setActiveIndex(i);
 
-      // Timeline dots pulse in with glow ring
-      section.querySelectorAll('.service-dot').forEach((dot) => {
-        gsap.fromTo(
-          dot,
-          { scale: 0, opacity: 0 },
-          {
-            scale: 1,
-            opacity: 1,
-            ease: 'back.out(2)',
-            scrollTrigger: {
-              trigger: dot,
-              start: 'top 80%',
-              end: 'top 65%',
-              scrub: 0.3,
-              onEnter: () => {
-                // Glow ring that expands and fades
-                const ring = document.createElement('div');
-                ring.style.cssText = 'position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(124,140,110,0.6);pointer-events:none;';
-                (dot as HTMLElement).style.position = 'relative';
-                dot.appendChild(ring);
-                gsap.fromTo(ring,
-                  { scale: 1, opacity: 1 },
-                  { scale: 2.5, opacity: 0, duration: 0.8, ease: 'power2.out', onComplete: () => ring.remove() }
-                );
-              },
+                // Highlight current text
+                gsap.to(item, { opacity: 1, x: 30, duration: 0.6, ease: 'power2.out', overwrite: 'auto' });
+
+                // Blur-resolve title
+                const titleEl = item.querySelector('.service-title') as HTMLElement;
+                if (titleEl) {
+                  gsap.fromTo(titleEl,
+                    { filter: 'blur(4px)', opacity: 0.5 },
+                    { filter: 'blur(0px)', opacity: 1, duration: 0.5, ease: 'power2.out', overwrite: 'auto' }
+                  );
+                }
+
+                // Reveal vine indicator
+                vines.forEach((v, vi) => {
+                  gsap.to(v, {
+                    scaleY: vi === i ? 1 : 0,
+                    duration: 0.4,
+                    ease: vi === i ? 'power3.out' : 'power2.in',
+                    transformOrigin: vi === i ? 'top center' : 'bottom center',
+                    overwrite: 'auto',
+                  });
+                });
+
+                // Reveal current image with clip
+                gsap.to(images[i], {
+                  clipPath: 'inset(0% 0% 0% 0%)',
+                  scale: 1,
+                  duration: 1.2,
+                  ease: 'power3.inOut',
+                  overwrite: 'auto',
+                  zIndex: 10,
+                });
+
+                if (i > 0 && self.direction === 1) {
+                  gsap.set(images[i - 1], { zIndex: 1 });
+                }
+                if (i < images.length - 1 && self.direction === -1) {
+                  gsap.set(images[i + 1], { zIndex: 1 });
+                  gsap.to(images[i + 1], {
+                    clipPath: 'inset(100% 0% 0% 0%)',
+                    scale: 1.1,
+                    duration: 1.2,
+                    ease: 'power3.inOut',
+                    overwrite: 'auto',
+                  });
+                }
+              } else {
+                gsap.to(item, { opacity: 0.15, x: 0, duration: 0.6, ease: 'power2.out', overwrite: 'auto' });
+              }
             },
-          }
-        );
-      });
-
-      // Split text reveal on service card titles
-      const titleContexts: gsap.Context[] = [];
-      section.querySelectorAll('.service-title').forEach((title) => {
-        const titleCtx = splitTextReveal(title as HTMLElement, title.closest('.service-item') || section, {
-          mode: 'words',
-          duration: 0.5,
-          stagger: 0.06,
-          y: 30,
-          start: 'top 75%',
+          });
         });
-        titleContexts.push(titleCtx);
-      });
-
-      // Staggered feature reveals within each card
-      section.querySelectorAll('.service-item').forEach((item) => {
-        const features = item.querySelectorAll('.feature-line');
-        if (features.length) {
-          gsap.fromTo(
-            features,
-            { opacity: 0, x: -10 },
+      } else {
+        // Mobile: blur-resolve fade in
+        items.forEach((item) => {
+          gsap.fromTo(item,
+            { opacity: 0, y: 40, filter: 'blur(4px)' },
             {
-              opacity: 1,
-              x: 0,
-              duration: 0.4,
-              stagger: 0.06,
-              ease: 'power2.out',
-              scrollTrigger: {
-                trigger: item,
-                start: 'top 60%',
-                end: 'top 35%',
-                scrub: 0.3,
-              },
+              opacity: 1, y: 0, filter: 'blur(0px)',
+              duration: 0.8,
+              ease: 'power3.out',
+              scrollTrigger: { trigger: item, start: 'top 80%' },
             }
           );
-        }
-      });
-
-      // SVG path draw animation on connecting lines
-      section.querySelectorAll('.service-line path').forEach((path) => {
-        gsap.to(path, {
-          strokeDashoffset: 0,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: path.closest('svg'),
-            start: 'top 80%',
-            end: 'bottom 55%',
-            scrub: 0.3,
-          },
-        });
-      });
-
-      // Scroll progress bar on the timeline
-      const progressBar = section.querySelector('.service-progress');
-      if (progressBar) {
-        gsap.to(progressBar, {
-          height: '100%',
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section.querySelector('.service-timeline'),
-            start: 'top 60%',
-            end: 'bottom 40%',
-            scrub: true,
-          },
         });
       }
     }, section);
 
-    return () => {
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} id="studio" className="w-full bg-white py-24 overflow-hidden">
-      <div className="mx-auto max-w-[1400px] px-6 lg:px-12">
+    <section ref={sectionRef} id="studio" className="relative w-full bg-[#f4f2ef] lg:pt-24 lg:pb-32">
+      <div className="mx-auto max-w-[1400px] px-6 lg:px-12 h-full">
+
         {/* Section Header */}
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sage">
-            <span className="text-[10px] font-bold text-white">B&B</span>
+        <div className="mb-16 lg:mb-24 pt-16 lg:pt-0">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="h-[1px] w-12 bg-sage" />
+            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sage">
+              Our Expertise
+            </span>
           </div>
-          <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-black/40">
-            Our Services
-          </span>
+          <h2 className="text-[40px] md:text-[64px] lg:text-[80px] font-medium leading-[1] tracking-tight text-black max-w-[800px]">
+            Every service is a chapter in your landscape story.
+          </h2>
         </div>
-        <h2 className="mb-3 text-[32px] md:text-[44px] font-medium leading-[1.1] tracking-tight text-black">
-          What we do best
-        </h2>
-        <p className="mb-16 max-w-[500px] text-[14px] leading-relaxed text-black/50">
-          Every service is a chapter in your landscape story.
-        </p>
 
-        {/* Services storylane */}
-        <div className="relative service-timeline">
-          {/* Central timeline track */}
-          <div className="absolute left-3 md:left-1/2 md:-translate-x-px top-0 bottom-0 w-px bg-black/[0.06]" />
-          {/* Scroll progress fill */}
-          <div className="service-progress absolute left-3 md:left-1/2 md:-translate-x-px top-0 w-0.5 bg-sage/50 rounded-full origin-top" style={{ height: '0%' }} />
+        <div className="relative flex flex-col lg:flex-row gap-12 lg:gap-24">
 
-          {services.map((service, index) => {
-            const isLeft = index % 2 === 0;
-
-            return (
-              <div key={index} className="relative">
-                {/* Connecting SVG path — draws itself */}
-                {index > 0 && (
-                  <div className="flex justify-start md:justify-center pl-[11px] md:pl-0">
-                    <svg className="service-line h-20 w-2 overflow-visible" viewBox="0 0 2 80" preserveAspectRatio="none">
-                      <path
-                        d="M1 0 C1 20, 1 60, 1 80"
-                        fill="none"
-                        stroke="url(#sageLine)"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeDasharray="80"
-                        strokeDashoffset="80"
-                      />
-                      <defs>
-                        <linearGradient id="sageLine" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="rgba(124,140,110,0.2)" />
-                          <stop offset="100%" stopColor="rgba(124,140,110,0.5)" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                  </div>
-                )}
-
-                {/* Timeline dot */}
-                <div className="flex justify-start md:justify-center pl-[10px] md:pl-0 mb-4">
-                  <div className="service-dot h-4 w-4 rounded-full bg-sage shadow-lg shadow-sage/30 ring-4 ring-white scale-0 opacity-0" />
-                </div>
-
-                {/* Service card — alternates sides on desktop */}
-                <div
-                  className={`service-item opacity-0 pl-10 md:pl-0 ${
-                    isLeft
-                      ? 'md:pr-[calc(50%+40px)] md:text-right'
-                      : 'md:pl-[calc(50%+40px)]'
-                  }`}
-                >
-                  <div
-                    className="rounded-2xl border border-black/[0.06] bg-white p-7 md:p-9 transition-all duration-300 hover:shadow-xl hover:shadow-sage/5 hover:border-sage/20"
-                    style={{ transformStyle: 'preserve-3d', perspective: '800px' }}
-                    onMouseMove={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const dx = (e.clientX - (rect.left + rect.width / 2)) / rect.width;
-                      const dy = (e.clientY - (rect.top + rect.height / 2)) / rect.height;
-                      e.currentTarget.style.transform = `rotateY(${dx * 4}deg) rotateX(${-dy * 4}deg)`;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'rotateY(0) rotateX(0)';
-                    }}
-                  >
-                    {/* Number badge */}
-                    <div className={`mb-5 flex items-center gap-3 ${isLeft ? 'md:justify-end' : ''}`}>
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sage/10 text-[13px] font-bold text-sage">
-                        {service.number}
-                      </span>
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-black/40">
-                        {service.category}
-                      </span>
-                    </div>
-
-                    {/* Image */}
-                    <div className={`mb-6 ${isLeft ? 'md:ml-auto' : ''} max-w-[400px]`}>
-                      <div className="aspect-[2/1] w-full rounded-xl overflow-hidden">
-                        <img
-                          src={service.image}
-                          alt={service.title}
-                          className="h-full w-full object-cover"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            target.parentElement!.className += ` bg-gradient-to-br ${service.imageColor}`;
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Title + Description */}
-                    <h3 className="service-title mb-2 text-[24px] md:text-[28px] font-medium leading-tight tracking-tight text-black">
-                      {service.title}
-                    </h3>
-                    <p className="mb-5 text-[13px] leading-relaxed text-black/50">
-                      {service.description}
-                    </p>
-
-                    {/* Features */}
-                    <div className={`space-y-2 mb-5 ${isLeft ? 'md:ml-auto' : ''}`}>
-                      {service.features.map((feature, i) => (
-                        <div key={i} className={`feature-line flex items-start gap-2 ${isLeft ? 'md:justify-end md:flex-row-reverse' : ''}`}>
-                          <span className="mt-0.5 text-[11px] font-medium text-sage">+</span>
-                          <span className="text-[12px] leading-relaxed text-black/55">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* CTA */}
-                    <a
-                      href="#contact"
-                      className={`group inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-sage transition-colors hover:text-sage-hover ${
-                        isLeft ? 'md:flex-row-reverse' : ''
-                      }`}
-                    >
-                      Discuss your project
-                      <ArrowRight className={`h-3 w-3 transition-transform group-hover:translate-x-1 ${isLeft ? 'md:rotate-180 md:group-hover:-translate-x-1 md:group-hover:translate-x-0' : ''}`} />
-                    </a>
-                  </div>
+          {/* Left Column (Sticky Images) */}
+          <div
+            ref={leftColRef}
+            className="w-full lg:w-1/2 lg:sticky lg:top-32 lg:h-[70vh] rounded-2xl overflow-hidden shadow-2xl relative"
+          >
+            {services.map((service, index) => (
+              <div
+                key={index}
+                className={`service-image absolute inset-0 w-full h-full bg-gradient-to-br ${service.imageColor} origin-bottom lg:origin-center lg:block ${index === 0 ? 'block' : 'hidden'}`}
+                style={{ zIndex: services.length - index }}
+              >
+                <img
+                  src={service.image}
+                  alt={service.title}
+                  className="w-full h-full object-cover mix-blend-overlay opacity-50"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                />
+                <div className="absolute inset-0 bg-black/10 mix-blend-multiply" />
+                <div className="absolute bottom-8 left-8 text-[80px] font-black text-white/20 leading-none">
+                  {service.number}
                 </div>
               </div>
-            );
-          })}
-
-          {/* Final dot */}
-          <div className="flex justify-start md:justify-center pl-[10px] md:pl-0 mt-4">
-            <div className="service-dot h-4 w-4 rounded-full bg-sage shadow-lg shadow-sage/30 ring-4 ring-white scale-0 opacity-0" />
+            ))}
           </div>
+
+          {/* Right Column */}
+          <div ref={rightColRef} className="w-full lg:w-1/2 flex flex-col gap-24 lg:pb-[30vh]">
+            {services.map((service, index) => (
+              <div
+                key={index}
+                className={`service-text-item relative flex flex-col gap-6 lg:opacity-20`}
+                data-cursor-type="tool"
+                data-cursor-hover
+              >
+                {/* Vine line indicator (desktop) */}
+                <div
+                  className="vine-indicator hidden lg:block absolute left-[-24px] top-0 bottom-0 w-[2px] bg-sage rounded-full"
+                  style={{ transform: 'scaleY(0)', transformOrigin: 'top center' }}
+                />
+
+                {/* Mobile Image */}
+                <div className={`lg:hidden w-full h-[300px] rounded-xl overflow-hidden bg-gradient-to-br ${service.imageColor} relative mb-4`}>
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    className="w-full h-full object-cover mix-blend-overlay opacity-50"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                  <div className="absolute bottom-4 left-4 text-[40px] font-black text-white/20 leading-none">
+                    {service.number}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <span className="text-[12px] font-bold tracking-[0.1em] text-sage hidden lg:block">
+                    {service.number}
+                  </span>
+                  <div className="h-[1px] flex-1 bg-black/10 hidden lg:block" />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-black/40 bg-white/50 px-3 py-1 rounded-full backdrop-blur-sm">
+                    {service.category}
+                  </span>
+                </div>
+
+                <h3 className="service-title text-[32px] lg:text-[48px] font-medium leading-[1.1] tracking-tight text-black">
+                  {service.title}
+                </h3>
+
+                <p className="text-[15px] leading-[1.7] text-black/60 max-w-[480px]">
+                  {service.description}
+                </p>
+
+                <div className="flex flex-col gap-3 mt-2">
+                  {service.features.map((feature, fi) => (
+                    <div key={fi} className="flex items-start gap-3">
+                      <div className="w-[18px] h-[18px] mt-0.5 rounded-full border border-sage/30 flex items-center justify-center shrink-0">
+                        <div className="w-[4px] h-[4px] rounded-full bg-sage" />
+                      </div>
+                      <span className="text-[14px] leading-relaxed text-black/70">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4">
+                  <MagneticButton
+                    href="#contact"
+                    className="group inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.15em] text-black transition-colors hover:text-sage"
+                    strength={20}
+                  >
+                    <span className="border-b border-black/20 group-hover:border-sage pb-1 transition-colors duration-300">
+                      Discuss this service
+                    </span>
+                    <div className="w-8 h-8 rounded-full border border-black/10 flex items-center justify-center group-hover:border-sage transition-colors duration-300">
+                      <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
+                    </div>
+                  </MagneticButton>
+                </div>
+              </div>
+            ))}
+          </div>
+
         </div>
       </div>
     </section>

@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { testimonials } from '@/data/testimonials';
 import { companyStats } from '@/data/stats';
+import { circularReveal, breatheScale } from '@/lib/motion';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,27 +16,125 @@ const TestimonialsSection = () => {
     const section = sectionRef.current;
     if (!section) return;
 
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const contexts: gsap.Context[] = [];
+    const cleanups: (() => void)[] = [];
+
+    if (prefersReduced) {
+      section.querySelectorAll('.test-item').forEach((el) => gsap.set(el, { opacity: 1 }));
+      return;
+    }
+
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        section.querySelectorAll('.test-item'),
-        { y: 50, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.7,
-          stagger: 0.1,
-          ease: 'power2.out',
-          scrollTrigger: { trigger: section, start: 'top 70%' },
-        }
-      );
-      // Stars fill in one by one
+      const testItems = section.querySelectorAll('.test-item');
+
+      // Items: flip-in from back (rotateY 90° → 0°)
+      testItems.forEach((item, i) => {
+        gsap.fromTo(item,
+          { rotateY: 90, opacity: 0.3, transformPerspective: 1000 },
+          {
+            rotateY: 0,
+            opacity: 1,
+            duration: 0.7,
+            ease: 'power3.out',
+            delay: i * 0.15,
+            scrollTrigger: { trigger: section, start: 'top 70%' },
+          }
+        );
+      });
+
+      // Stars: burst sequence with brightness flash
       section.querySelectorAll('.star-group').forEach((group) => {
         const stars = group.querySelectorAll('.star-icon');
-        gsap.fromTo(stars, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, stagger: 0.1, ease: 'back.out(3)', scrollTrigger: { trigger: group, start: 'top 80%' } });
+        stars.forEach((star, si) => {
+          gsap.fromTo(star,
+            { scale: 0, opacity: 0 },
+            {
+              scale: 1, opacity: 1,
+              duration: 0.3,
+              ease: 'back.out(3)',
+              delay: si * 0.08,
+              scrollTrigger: { trigger: group, start: 'top 80%' },
+            }
+          );
+          // Brightness flash
+          gsap.fromTo(star,
+            { filter: 'brightness(2.5)' },
+            {
+              filter: 'brightness(1)',
+              duration: 0.4,
+              delay: si * 0.08,
+              scrollTrigger: { trigger: group, start: 'top 80%' },
+            }
+          );
+        });
+      });
+
+      // Quote text: ink-flow clip reveal
+      const quotes = section.querySelectorAll('.quote-text');
+      quotes.forEach((quote, i) => {
+        gsap.fromTo(quote,
+          { clipPath: 'inset(0 100% 0 0)', opacity: 1 },
+          {
+            clipPath: 'inset(0 0% 0 0)',
+            duration: 0.9,
+            ease: 'power2.inOut',
+            delay: i * 0.15 + 0.3,
+            scrollTrigger: { trigger: section, start: 'top 70%' },
+            onComplete: () => { gsap.set(quote, { clipPath: 'none' }); },
+          }
+        );
+      });
+
+      // Author avatars: circular bloom
+      const avatars = section.querySelectorAll('.author-avatar');
+      avatars.forEach((avatar, i) => {
+        const avCtx = circularReveal(avatar, section, {
+          duration: 0.4,
+          start: 'top 70%',
+          targetRadius: '50%',
+          delay: i * 0.15 + 0.1,
+          ease: 'power3.out',
+        });
+        contexts.push(avCtx);
+      });
+
+      // Ambient: subtle breathing on cards while in viewport
+      const cards = section.querySelectorAll('.testimonial-card');
+      cards.forEach((card) => {
+        const cleanup = breatheScale(card, { min: 1.0, max: 1.003, duration: 5 });
+        cleanups.push(cleanup);
+      });
+
+      // Card hover: dimensional lift with lean-back
+      cards.forEach((card) => {
+        card.addEventListener('mouseenter', () => {
+          gsap.to(card, {
+            y: -8,
+            rotateX: 3,
+            scale: 1.01,
+            duration: 0.3,
+            ease: 'power2.out',
+            transformPerspective: 800,
+          });
+        });
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, {
+            y: 0,
+            rotateX: 0,
+            scale: 1,
+            duration: 0.4,
+            ease: 'power2.out',
+          });
+        });
       });
     }, section);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      contexts.forEach((c) => c.revert());
+      cleanups.forEach((c) => c());
+    };
   }, []);
 
   const selected = selectedIndex !== null ? testimonials[selectedIndex] : null;
@@ -44,13 +143,13 @@ const TestimonialsSection = () => {
     <section ref={sectionRef} className="w-full bg-[#1A1A17] py-24 overflow-hidden">
       <div className="mx-auto max-w-[1400px] px-6 lg:px-12">
         {/* Header */}
-        <div className="test-item mb-4 opacity-0">
+        <div className="test-item mb-4 opacity-0" style={{ willChange: 'transform' }}>
           <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-white/40">
             What our clients say
           </span>
         </div>
 
-        <div className="test-item flex items-start justify-between mb-12 opacity-0">
+        <div className="test-item flex items-start justify-between mb-12 opacity-0" style={{ willChange: 'transform' }}>
           <div>
             <h3 className="text-[28px] md:text-[36px] font-medium leading-[1.1] tracking-tight text-white mb-3">
               Partnerships that last, results that stick.
@@ -62,7 +161,9 @@ const TestimonialsSection = () => {
           <div className="hidden md:flex items-center gap-3">
             <div className="star-group flex gap-0.5">
               {[1, 2, 3, 4, 5].map((s) => (
-                <span key={s} className="star-icon inline-block"><Star className="h-4 w-4 fill-sage text-sage" /></span>
+                <span key={s} className="star-icon inline-block" style={{ filter: 'brightness(1)' }}>
+                  <Star className="h-4 w-4 fill-sage text-sage" />
+                </span>
               ))}
             </div>
             <span className="text-[14px] font-semibold text-white">{companyStats.rating}</span>
@@ -70,33 +171,41 @@ const TestimonialsSection = () => {
           </div>
         </div>
 
-        <div className="test-item mb-6 opacity-0">
+        <div className="test-item mb-6 opacity-0" style={{ willChange: 'transform' }}>
           <span className="text-[80px] md:text-[120px] font-serif leading-none text-sage/10 select-none">&ldquo;</span>
         </div>
 
-        {/* Featured 3 testimonials — Google Review card style */}
-        <div className="test-item grid grid-cols-1 md:grid-cols-3 gap-5 mb-10 opacity-0">
+        {/* Testimonial cards */}
+        <div className="test-item grid grid-cols-1 md:grid-cols-3 gap-5 mb-10 opacity-0" style={{ willChange: 'transform' }}>
           {testimonials.slice(0, 3).map((t, i) => (
             <button
               key={i}
               onClick={() => setSelectedIndex(i)}
-              className="group text-left rounded-2xl border border-white/10 bg-[#22221E] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:bg-[#2A2A25]"
+              className="testimonial-card text-left rounded-2xl border border-white/10 bg-[#22221E] p-6 transition-colors hover:border-white/20 hover:bg-[#2A2A25]"
+              style={{ willChange: 'transform' }}
+              data-cursor-type="leaf"
+              data-cursor-hover
             >
               {/* Stars */}
-              <div className="flex gap-0.5 mb-4">
+              <div className="star-group flex gap-0.5 mb-4">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} className="h-3 w-3 fill-sage text-sage" />
+                  <span key={s} className="star-icon inline-block" style={{ filter: 'brightness(1)' }}>
+                    <Star className="h-3 w-3 fill-sage text-sage" />
+                  </span>
                 ))}
               </div>
 
-              {/* Quote */}
-              <p className="mb-5 text-[13px] leading-relaxed text-white/70 italic line-clamp-4">
-                "{t.quote}"
+              {/* Quote: ink-flow reveal */}
+              <p className="quote-text mb-5 text-[13px] leading-relaxed text-white/70 italic line-clamp-4" style={{ clipPath: 'inset(0 100% 0 0)' }}>
+                &ldquo;{t.quote}&rdquo;
               </p>
 
               {/* Author */}
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-sage/60 to-sage flex items-center justify-center shrink-0">
+                <div
+                  className="author-avatar h-10 w-10 rounded-full bg-gradient-to-br from-sage/60 to-sage flex items-center justify-center shrink-0"
+                  style={{ clipPath: 'circle(0% at 50% 50%)' }}
+                >
                   <span className="text-white font-bold text-[11px]">{t.initials}</span>
                 </div>
                 <div>
@@ -105,7 +214,6 @@ const TestimonialsSection = () => {
                 </div>
               </div>
 
-              {/* Date */}
               <div className="mt-4 pt-3 border-t border-white/5">
                 <span className="text-[10px] text-white/25">{t.date}</span>
               </div>
@@ -113,8 +221,8 @@ const TestimonialsSection = () => {
           ))}
         </div>
 
-        {/* View all reviews CTA */}
-        <div className="test-item flex items-center justify-between opacity-0">
+        {/* View all CTA */}
+        <div className="test-item flex items-center justify-between opacity-0" style={{ willChange: 'transform' }}>
           <p className="text-[11px] text-white/30">
             Backed by feedback from <strong className="text-white/50">{companyStats.projectsCompleted}</strong> projects delivered.
           </p>
@@ -128,7 +236,7 @@ const TestimonialsSection = () => {
         </div>
       </div>
 
-      {/* Expanded Review Modal */}
+      {/* Modal */}
       {selected && (
         <div
           className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6"
@@ -145,19 +253,16 @@ const TestimonialsSection = () => {
               <X className="h-4 w-4" />
             </button>
 
-            {/* Stars */}
             <div className="flex gap-0.5 mb-5">
               {[1, 2, 3, 4, 5].map((s) => (
                 <Star key={s} className="h-4 w-4 fill-sage text-sage" />
               ))}
             </div>
 
-            {/* Full quote */}
             <p className="mb-6 text-[16px] md:text-[18px] leading-relaxed text-white/80 italic">
-              "{selected.quote}"
+              &ldquo;{selected.quote}&rdquo;
             </p>
 
-            {/* Author */}
             <div className="flex items-center gap-4">
               <div className="h-14 w-14 rounded-full bg-gradient-to-br from-sage/60 to-sage flex items-center justify-center">
                 <span className="text-white font-bold text-[16px]">{selected.initials}</span>
