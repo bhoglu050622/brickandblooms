@@ -58,7 +58,7 @@ const BlogSection = () => {
         const cinCtx = cinematicReveal(featContainer, section, {
           direction: 'top',
           duration: 1.4,
-          start: 'top 75%',
+          start: 'top 90%',
         });
         contexts.push(cinCtx);
       }
@@ -157,7 +157,7 @@ const BlogSection = () => {
         <div className="mb-4">
           <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-black/40">WHISPERS</span>
         </div>
-        <div className="flex items-start justify-between mb-16">
+        <div className="flex items-start justify-between mb-8 lg:mb-16">
           <div>
             <h2 className="mb-4 text-[32px] md:text-[44px] font-medium leading-[1.1] tracking-tight text-black">
               What bubbles up needs to be shared
@@ -176,7 +176,7 @@ const BlogSection = () => {
         {/* Top row: Info card + Featured post */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Whispers info card */}
-          <div className="blog-item rounded-2xl border border-black/10 bg-black/[0.02] p-8" style={{ opacity: 0 }}>
+          <div className="blog-item hidden lg:block rounded-2xl border border-black/10 bg-black/[0.02] p-8" style={{ opacity: 0 }}>
             <h3 className="mb-2 text-[18px] font-medium text-black">Whispers - Blog</h3>
             <p className="mb-4 text-[13px] text-black/40">From small sparks to big ideas.</p>
             <p className="mb-6 text-[12px] leading-relaxed text-black/50">
@@ -199,7 +199,7 @@ const BlogSection = () => {
           {/* Featured post: cinematic reveal */}
           <div
             ref={featuredContainerRef}
-            className="lg:col-span-2 group cursor-pointer"
+            className="col-span-1 lg:col-span-2 group cursor-pointer"
             style={{ opacity: 0 }}
             data-cursor-type="leaf"
             data-cursor-hover
