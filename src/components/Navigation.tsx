@@ -50,18 +50,18 @@ const Navigation = () => {
       {/* Floating Bubble Nav — iOS Dynamic Island style */}
       <nav
         ref={bubbleRef}
-        className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-700 ease-out ${
+        className={`fixed top-4 left-4 sm:left-1/2 sm:-translate-x-1/2 z-50 transition-all duration-700 ease-out ${
           visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'
         }`}
       >
-        <div className="flex items-center gap-1 rounded-full bg-[#1A1A17]/80 backdrop-blur-2xl border border-white/10 px-2 py-1.5 shadow-2xl shadow-black/30 max-w-[95vw]">
+        <div className="flex items-center gap-0.5 sm:gap-1 rounded-full bg-[#1A1A17]/80 backdrop-blur-2xl border border-white/10 px-1.5 py-1 sm:px-2 sm:py-1.5 shadow-2xl shadow-black/30 max-w-[95vw]">
           {/* Logo pill */}
           <a
             href="#"
             onClick={(e) => handleNavClick(e, '#')}
-            className="flex items-center rounded-full bg-sage/15 px-4 py-2 transition-all duration-300 hover:bg-sage/25 hover:scale-105"
+            className="flex items-center rounded-full bg-sage/15 px-3 py-1.5 sm:px-4 sm:py-2 transition-all duration-300 hover:bg-sage/25 hover:scale-105"
           >
-            <span className="text-[13px] font-bold tracking-tight text-sage">B&B</span>
+            <span className="text-[12px] sm:text-[13px] font-bold tracking-tight text-sage">B&B</span>
           </a>
 
           {/* Desktop nav links */}
@@ -90,10 +90,10 @@ const Navigation = () => {
           {/* Mobile toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden flex items-center justify-center rounded-full w-9 h-9 text-white/70 hover:bg-white/10 transition-colors"
+            className="md:hidden flex items-center justify-center rounded-full w-8 h-8 text-white/70 hover:bg-white/10 transition-colors"
             aria-label="Toggle menu"
           >
-            {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            {mobileOpen ? <X className="h-3.5 w-3.5" /> : <Menu className="h-3.5 w-3.5" />}
           </button>
         </div>
       </nav>

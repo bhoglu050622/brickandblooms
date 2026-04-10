@@ -45,9 +45,9 @@ export const PersonalizedGreeting = ({ className = '' }: PersonalizedGreetingPro
   if (!showGreeting || !greeting) return null;
 
   return (
-    <div 
-      className={`fixed top-6 right-6 z-50 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-medium transition-all duration-500 transform ${showGreeting ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'} ${className}`}
-      style={{ 
+    <div
+      className={`fixed top-4 right-4 z-50 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 text-[11px] font-medium transition-all duration-500 transform ${showGreeting ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'} ${className}`}
+      style={{
         backgroundColor: `${colors.background}20`,
         borderColor: `${colors.primary}30`
       }}
