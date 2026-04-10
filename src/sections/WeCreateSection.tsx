@@ -108,20 +108,24 @@ const WeCreateSection = () => {
       });
     }
 
-    // Background kinetic shift as user scrolls through phrases
-    gsap.fromTo(section,
-      { backgroundColor: '#0A0A08' },
-      {
-        backgroundColor: '#ffffff',
-        ease: 'none',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1,
-        },
-      }
-    );
+    // Background kinetic shift — desktop only (mobile keeps white bg so dark text is readable)
+    if (!isMobile) {
+      gsap.fromTo(section,
+        { backgroundColor: '#0A0A08' },
+        {
+          backgroundColor: '#ffffff',
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1,
+          },
+        }
+      );
+    } else {
+      gsap.set(section, { backgroundColor: '#ffffff' });
+    }
 
     const ctx = gsap.context(() => {
       lines.forEach((line, i) => {
@@ -234,7 +238,7 @@ const WeCreateSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-white py-32"
+      className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-white py-20 md:py-32"
     >
       {/* 3-layer parallax droplet field */}
       <div className="droplet-bg-close absolute inset-0 overflow-hidden pointer-events-none">
@@ -261,7 +265,7 @@ const WeCreateSection = () => {
         {textLines.map((line, index) => (
           <div
             key={index}
-            className={`line text-[28px] sm:text-[48px] md:text-[80px] lg:text-[110px] xl:text-[130px] font-extrabold leading-[0.95] tracking-tight ${line.color} opacity-0`}
+            className={`line text-[40px] sm:text-[56px] md:text-[80px] lg:text-[110px] xl:text-[130px] font-extrabold leading-[0.95] tracking-tight ${line.color} opacity-0`}
             style={{ perspective: '600px' }}
           >
             <span className="scramble-target" data-text={line.text}>

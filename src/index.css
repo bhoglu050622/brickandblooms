@@ -149,7 +149,7 @@
   .text-display {
     @apply font-black tracking-tighter;
     font-variation-settings: "opsz" var(--font-optical-size-9xl), "wght" 900;
-    font-size: clamp(3rem, 8vw, 6rem);
+    font-size: clamp(2.5rem, 10vw, 6rem);
     line-height: 0.95;
     letter-spacing: -0.03em;
   }
