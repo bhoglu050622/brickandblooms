@@ -112,9 +112,8 @@ export function clipReveal(
   }, trigger);
 }
 
-// ── New Primitives ──────────────────────────────────────────────────────
+// ── Shared Types ───────────────────────────────────────────────────────
 
-/** Direction-aware clip-path reveal */
 type ClipDirection = 'left' | 'right' | 'top' | 'bottom' | 'center';
 
 const clipStartStates: Record<ClipDirection, string> = {
@@ -124,6 +123,95 @@ const clipStartStates: Record<ClipDirection, string> = {
   bottom: 'inset(100% 0% 0% 0%)',
   center: 'inset(10% 10% 10% 10%)',
 };
+
+// ── Nature Motion Language ──────────────────────────────────────────────
+
+export const NATURE = {
+  ease: {
+    slow: 'power2.inOut',
+    drift: 'sine.inOut',
+    grow: 'power3.out',
+    breathe: 'sine.inOut',
+    entrance: 'power4.out',
+  },
+  duration: {
+    slow: 1.6,
+    medium: 1.0,
+    breathe: 4.0,
+    drift: 8.0,
+    stagger: 0.12,
+  },
+};
+
+/** Continuous subtle breathing scale oscillation */
+export function breatheScale(
+  element: gsap.TweenTarget,
+  options: { min?: number; max?: number; duration?: number } = {}
+): () => void {
+  if (prefersReduced()) return () => {};
+
+  const { min = 1.0, max = 1.02, duration = NATURE.duration.breathe } = options;
+  const tween = gsap.fromTo(element,
+    { scale: min },
+    { scale: max, duration, ease: NATURE.ease.breathe, yoyo: true, repeat: -1 }
+  );
+
+  return () => { tween.kill(); gsap.set(element, { scale: 1 }); };
+}
+
+/** Slow continuous drift for ambient overlay layers */
+export function driftOverlay(
+  element: gsap.TweenTarget,
+  options: { x?: number; y?: number; duration?: number } = {}
+): () => void {
+  if (prefersReduced()) return () => {};
+
+  const { x = 30, y = 15, duration = NATURE.duration.drift } = options;
+  const tweenX = gsap.to(element, { x, duration, ease: NATURE.ease.drift, yoyo: true, repeat: -1 });
+  const tweenY = gsap.to(element, { y, duration: duration * 1.3, ease: NATURE.ease.drift, yoyo: true, repeat: -1 });
+
+  return () => {
+    tweenX.kill();
+    tweenY.kill();
+    gsap.set(element, { x: 0, y: 0 });
+  };
+}
+
+/** Cinematic reveal — clip-path + scale for viewport-filling sections */
+interface CinematicRevealOptions {
+  direction?: ClipDirection;
+  duration?: number;
+  start?: string;
+  delay?: number;
+}
+
+export function cinematicReveal(
+  element: gsap.TweenTarget,
+  trigger: Element,
+  options: CinematicRevealOptions = {}
+): gsap.Context {
+  if (prefersReduced()) {
+    setVisible(element);
+    return gsap.context(() => {}, trigger);
+  }
+
+  const { direction = 'center', duration = NATURE.duration.slow, start = 'top 75%', delay = 0 } = options;
+
+  return gsap.context(() => {
+    gsap.fromTo(
+      element,
+      { clipPath: clipStartStates[direction], opacity: 0, scale: 1.05 },
+      {
+        clipPath: 'inset(0% 0% 0% 0%)', opacity: 1, scale: 1,
+        duration, ease: NATURE.ease.grow, delay,
+        scrollTrigger: { trigger, start },
+        onComplete: () => { gsap.set(element, { willChange: 'auto' }); },
+      }
+    );
+  }, trigger);
+}
+
+// ── Primitives ─────────────────────────────────────────────────────────
 
 interface ClipRevealDirectionalOptions {
   duration?: number;
@@ -323,6 +411,156 @@ export function velocitySkew(
     gsap.ticker.remove(update);
     gsap.set(element, { skewY: 0 });
   };
+}
+
+/** Circular clip-path reveal from center — like a seed blooming open */
+interface CircularRevealOptions {
+  duration?: number;
+  start?: string;
+  targetRadius?: string;
+  delay?: number;
+  ease?: string;
+}
+
+export function circularReveal(
+  element: gsap.TweenTarget,
+  trigger: Element,
+  options: CircularRevealOptions = {}
+): gsap.Context {
+  if (prefersReduced()) {
+    setVisible(element);
+    return gsap.context(() => {}, trigger);
+  }
+
+  const { duration = 0.8, start = 'top 75%', targetRadius = '75%', delay = 0, ease = 'power3.out' } = options;
+
+  return gsap.context(() => {
+    gsap.fromTo(
+      element,
+      { clipPath: 'circle(0% at 50% 50%)', opacity: 0 },
+      {
+        clipPath: `circle(${targetRadius} at 50% 50%)`,
+        opacity: 1,
+        duration,
+        ease,
+        delay,
+        scrollTrigger: { trigger, start },
+        onComplete: () => { gsap.set(element, { clipPath: 'none', willChange: 'auto' }); },
+      }
+    );
+  }, trigger);
+}
+
+/** Darkroom photo-develop effect — grayscale + dim to full color */
+interface PhotoRevealOptions {
+  duration?: number;
+  start?: string;
+  delay?: number;
+}
+
+export function photoReveal(
+  element: gsap.TweenTarget,
+  trigger: Element,
+  options: PhotoRevealOptions = {}
+): gsap.Context {
+  if (prefersReduced()) {
+    gsap.set(element, { filter: 'none', opacity: 1 });
+    return gsap.context(() => {}, trigger);
+  }
+
+  const { duration = 0.9, start = 'top 75%', delay = 0 } = options;
+
+  return gsap.context(() => {
+    gsap.fromTo(
+      element,
+      { filter: 'grayscale(100%) brightness(0.5)', opacity: 0.3 },
+      {
+        filter: 'grayscale(0%) brightness(1)',
+        opacity: 1,
+        duration,
+        ease: 'power2.out',
+        delay,
+        scrollTrigger: { trigger, start },
+      }
+    );
+  }, trigger);
+}
+
+/** Earth-rise wipe — bottom-up clip reveal for section entrances */
+interface EarthRiseOptions {
+  duration?: number;
+  start?: string;
+  ease?: string;
+  delay?: number;
+}
+
+export function earthRise(
+  element: gsap.TweenTarget,
+  trigger: Element,
+  options: EarthRiseOptions = {}
+): gsap.Context {
+  if (prefersReduced()) {
+    setVisible(element);
+    return gsap.context(() => {}, trigger);
+  }
+
+  const { duration = 1.0, start = 'top 85%', ease = 'power3.inOut', delay = 0 } = options;
+
+  return gsap.context(() => {
+    gsap.set(element, { opacity: 0, clipPath: 'inset(100% 0% 0% 0%)', y: 20 });
+    gsap.fromTo(
+      element,
+      { clipPath: 'inset(100% 0% 0% 0%)', y: 20, opacity: 0 },
+      {
+        clipPath: 'inset(0% 0% 0% 0%)',
+        y: 0,
+        opacity: 1,
+        duration,
+        ease,
+        delay,
+        scrollTrigger: { trigger, start },
+        onComplete: () => { gsap.set(element, { clipPath: 'none', willChange: 'auto' }); },
+      }
+    );
+  }, trigger);
+}
+
+/** Shimmer sweep — a gradient light sweeps across element left-to-right */
+export function shimmerSweep(
+  container: HTMLElement,
+  options: { duration?: number; delay?: number; color?: string } = {}
+): () => void {
+  if (prefersReduced()) return () => {};
+
+  const { duration = 0.8, delay = 0, color = 'rgba(255,255,255,0.25)' } = options;
+
+  const shimmer = document.createElement('div');
+  shimmer.style.cssText = `
+    position: absolute; inset: 0; z-index: 20; pointer-events: none; overflow: hidden;
+    border-radius: inherit;
+  `;
+  const line = document.createElement('div');
+  line.style.cssText = `
+    position: absolute; top: 0; bottom: 0; left: 0; width: 60%;
+    background: linear-gradient(90deg, transparent 0%, ${color} 50%, transparent 100%);
+    transform: translateX(-100%);
+  `;
+  shimmer.appendChild(line);
+
+  // Only add if container is position relative/absolute
+  const cs = getComputedStyle(container);
+  if (cs.position === 'static') container.style.position = 'relative';
+  container.appendChild(shimmer);
+
+  const tween = gsap.to(line, {
+    x: '300%',
+    duration,
+    delay,
+    ease: 'power2.inOut',
+    onComplete: () => { shimmer.remove(); },
+  });
+
+  return () => { tween.kill(); shimmer.remove(); };
 }
 
 /** Odometer-style rolling digit counter */

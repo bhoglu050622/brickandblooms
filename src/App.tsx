@@ -19,8 +19,12 @@ import TeamSection from './sections/TeamSection';
 import FAQSection from './sections/FAQSection';
 import TestimonialsSection from './sections/TestimonialsSection';
 import BlogSection from './sections/BlogSection';
+import TransformationSection from './sections/TransformationSection';
 import CTASection from './sections/CTASection';
 import Footer from './sections/Footer';
+import { CursorGradient } from './components/CursorGradient';
+import { SoundController } from './components/SoundController';
+import { PersonalizedGreeting } from './components/PersonalizedGreeting';
 
 import './App.css';
 
@@ -31,6 +35,7 @@ function App() {
   const [introComplete, setIntroComplete] = useState(false);
   const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
   const lenisRef = useRef<Lenis | null>(null);
+  const lenisTickerRef = useRef<((time: number) => void) | null>(null);
   const handleIntroComplete = useCallback(() => setIntroComplete(true), []);
 
   useEffect(() => {
@@ -44,39 +49,66 @@ function App() {
     // Only initialize Lenis smooth scroll when motion is allowed
     if (!prefersReduced) {
       const lenis = new Lenis({
-        duration: 1.2,
+        duration: 1.15,
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
+        touchMultiplier: 1.15,
       });
       lenisRef.current = lenis;
       setLenisInstance(lenis);
 
       lenis.on('scroll', ScrollTrigger.update);
-      gsap.ticker.add((time) => {
+
+      const onLenisTicker = (time: number) => {
         lenis.raf(time * 1000);
-      });
+      };
+      lenisTickerRef.current = onLenisTicker;
+      gsap.ticker.add(onLenisTicker);
       gsap.ticker.lagSmoothing(0);
+
+      // Lenis does not always emit `scroll` on first paint — without this, scrubbed
+      // ScrollTriggers (e.g. hero video) stay wrong until the user scrolls once.
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+        ScrollTrigger.update();
+      });
     }
 
     ScrollTrigger.refresh();
 
     return () => {
-      if (lenisRef.current) {
-        lenisRef.current.destroy();
-        gsap.ticker.remove(lenisRef.current.raf);
+      if (lenisTickerRef.current) {
+        gsap.ticker.remove(lenisTickerRef.current);
+        lenisTickerRef.current = null;
+      }
+      const lenis = lenisRef.current;
+      if (lenis) {
+        lenis.destroy();
+        lenisRef.current = null;
       }
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, []);
 
+  useEffect(() => {
+    if (!introComplete) return;
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+      ScrollTrigger.update();
+    });
+  }, [introComplete]);
+
   return (
     <LenisContext.Provider value={lenisInstance}>
-      <main className="relative min-h-screen w-full overflow-x-hidden">
+      <main className="relative min-h-screen w-full overflow-x-clip">
         {/* Intro Loader */}
         {!introComplete && <IntroLoader onComplete={handleIntroComplete} />}
 
         {/* Custom Cursor */}
         <CustomCursor />
+        <CursorGradient colorRgb="124, 140, 110" intensity={0.12} size={720} />
+        <SoundController />
+        <PersonalizedGreeting />
 
         {/* Navigation */}
         <Navigation />
@@ -85,6 +117,7 @@ function App() {
         <HeroSection />
         <WeCreateSection />
         <WorkSection />
+        <TransformationSection />
         <StatsSection />
         <ServicesSection />
         <ProcessSection />

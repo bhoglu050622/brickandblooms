@@ -37,6 +37,21 @@
     --color-bg-tertiary: #2A2A25;
     --color-text-muted: #8A8A7A;
     --color-text-secondary: #B0B0A0;
+    
+    /* Advanced typography variables */
+    --font-optical-size-xs: 14;
+    --font-optical-size-sm: 16;
+    --font-optical-size-base: 18;
+    --font-optical-size-lg: 20;
+    --font-optical-size-xl: 24;
+    --font-optical-size-2xl: 28;
+    --font-optical-size-3xl: 32;
+    --font-optical-size-4xl: 36;
+    --font-optical-size-5xl: 40;
+    --font-optical-size-6xl: 44;
+    --font-optical-size-7xl: 48;
+    --font-optical-size-8xl: 52;
+    --font-optical-size-9xl: 56;
   }
 }
 
@@ -47,16 +62,104 @@
   
   html {
     /* Lenis handles smooth scroll */
+    font-size: 100%;
+    line-height: 1.5;
   }
   
   body {
     @apply bg-[#1A1A17] text-white antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" var(--font-optical-size-base), "wght" 400;
     cursor: none;
   }
   
   a, button {
     cursor: none;
+  }
+  
+  /* Enhanced heading hierarchy with optical sizing */
+  h1, .text-h1 {
+    @apply font-bold tracking-tight;
+    font-variation-settings: "opsz" var(--font-optical-size-8xl), "wght" 700;
+    font-size: clamp(2.25rem, 6vw, 4.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  
+  h2, .text-h2 {
+    @apply font-semibold tracking-tight;
+    font-variation-settings: "opsz" var(--font-optical-size-6xl), "wght" 600;
+    font-size: clamp(1.875rem, 5vw, 3.75rem);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+  }
+  
+  h3, .text-h3 {
+    @apply font-semibold;
+    font-variation-settings: "opsz" var(--font-optical-size-4xl), "wght" 600;
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    line-height: 1.2;
+  }
+  
+  h4, .text-h4 {
+    @apply font-medium;
+    font-variation-settings: "opsz" var(--font-optical-size-3xl), "wght" 500;
+    font-size: clamp(1.25rem, 3.5vw, 2.25rem);
+    line-height: 1.3;
+  }
+  
+  h5, .text-h5 {
+    @apply font-medium;
+    font-variation-settings: "opsz" var(--font-optical-size-xl), "wght" 500;
+    font-size: clamp(1.125rem, 3vw, 1.875rem);
+    line-height: 1.35;
+  }
+  
+  h6, .text-h6 {
+    @apply font-medium;
+    font-variation-settings: "opsz" var(--font-optical-size-lg), "wght" 500;
+    font-size: clamp(1rem, 2.5vw, 1.5rem);
+    line-height: 1.4;
+  }
+  
+  /* Enhanced paragraph styles */
+  p, .text-body {
+    @apply font-normal;
+    font-variation-settings: "opsz" var(--font-optical-size-base), "wght" 400;
+    font-size: clamp(0.875rem, 2vw, 1.125rem);
+    line-height: 1.6;
+  }
+  
+  .text-body-lg {
+    @apply font-normal;
+    font-variation-settings: "opsz" var(--font-optical-size-lg), "wght" 400;
+    font-size: clamp(1rem, 2.2vw, 1.25rem);
+    line-height: 1.6;
+  }
+  
+  .text-body-sm {
+    @apply font-normal;
+    font-variation-settings: "opsz" var(--font-optical-size-sm), "wght" 400;
+    font-size: clamp(0.75rem, 1.8vw, 0.875rem);
+    line-height: 1.5;
+  }
+  
+  /* Display text for hero sections */
+  .text-display {
+    @apply font-black tracking-tighter;
+    font-variation-settings: "opsz" var(--font-optical-size-9xl), "wght" 900;
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+  }
+  
+  .text-display-md {
+    @apply font-extrabold tracking-tight;
+    font-variation-settings: "opsz" var(--font-optical-size-7xl), "wght" 800;
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    line-height: 1;
+    letter-spacing: -0.025em;
   }
 }
 
@@ -76,7 +179,100 @@
   .hover\:bg-sage-hover:hover {
     background-color: var(--color-sage-hover);
   }
-
+  
+  /* Dynamic color utilities */
+  .text-dynamic-primary {
+    color: var(--dynamic-primary, var(--color-sage));
+  }
+  
+  .text-dynamic-secondary {
+    color: var(--dynamic-secondary, var(--color-sage-hover));
+  }
+  
+  .text-dynamic-accent {
+    color: var(--dynamic-accent, var(--color-terracotta));
+  }
+  
+  .bg-dynamic-primary {
+    background-color: var(--dynamic-primary, var(--color-sage));
+  }
+  
+  .bg-dynamic-secondary {
+    background-color: var(--dynamic-secondary, var(--color-sage-hover));
+  }
+  
+  .bg-dynamic-accent {
+    background-color: var(--dynamic-accent, var(--color-terracotta));
+  }
+  
+  /* Enhanced text shadows for depth */
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  }
+  
+  .text-shadow-md {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .text-shadow-lg {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  }
+  
+  .text-shadow-xl {
+    text-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+  
+  .text-shadow-hero {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Enhanced gradient text with variable stops */
+  .gradient-text {
+    background: linear-gradient(135deg, var(--dynamic-primary, #7C8C6E) 0%, var(--dynamic-secondary, #8FA07F) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .gradient-text-hero {
+    background: linear-gradient(120deg, var(--dynamic-primary, #7C8C6E) 0%, var(--dynamic-secondary, #8FA07F) 30%, #FFFFFF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .gradient-text-accent {
+    background: linear-gradient(135deg, var(--dynamic-accent, #C67D5B) 0%, #D4C9B8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Optical sizing utilities */
+  .opsz-xs { font-variation-settings: "opsz" var(--font-optical-size-xs); }
+  .opsz-sm { font-variation-settings: "opsz" var(--font-optical-size-sm); }
+  .opsz-base { font-variation-settings: "opsz" var(--font-optical-size-base); }
+  .opsz-lg { font-variation-settings: "opsz" var(--font-optical-size-lg); }
+  .opsz-xl { font-variation-settings: "opsz" var(--font-optical-size-xl); }
+  .opsz-2xl { font-variation-settings: "opsz" var(--font-optical-size-2xl); }
+  .opsz-3xl { font-variation-settings: "opsz" var(--font-optical-size-3xl); }
+  .opsz-4xl { font-variation-settings: "opsz" var(--font-optical-size-4xl); }
+  .opsz-5xl { font-variation-settings: "opsz" var(--font-optical-size-5xl); }
+  .opsz-6xl { font-variation-settings: "opsz" var(--font-optical-size-6xl); }
+  .opsz-7xl { font-variation-settings: "opsz" var(--font-optical-size-7xl); }
+  .opsz-8xl { font-variation-settings: "opsz" var(--font-optical-size-8xl); }
+  .opsz-9xl { font-variation-settings: "opsz" var(--font-optical-size-9xl); }
+  
+  /* Weight utilities */
+  .font-thin { font-variation-settings: "wght" 100; }
+  .font-extralight { font-variation-settings: "wght" 200; }
+  .font-light { font-variation-settings: "wght" 300; }
+  .font-normal { font-variation-settings: "wght" 400; }
+  .font-medium { font-variation-settings: "wght" 500; }
+  .font-semibold { font-variation-settings: "wght" 600; }
+  .font-bold { font-variation-settings: "wght" 700; }
+  .font-extrabold { font-variation-settings: "wght" 800; }
+  .font-black { font-variation-settings: "wght" 900; }
 }
 
 /* Marquee animation */
@@ -167,6 +363,15 @@
   }
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -243,6 +448,10 @@
 /* Animation classes */
 .animate-fade-in-up {
   animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
 .animate-fade-in {
@@ -339,6 +548,112 @@
   transform: translateX(4px);
 }
 
+/* Liquid fill button effect */
+.btn-liquid {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-liquid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-sage-hover) 0%, var(--color-sage) 100%);
+  transform: translateX(-100%);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.btn-liquid:hover::before {
+  transform: translateX(0);
+}
+
+/* Enhanced button with liquid fill and scale */
+.btn-enhanced {
+  @apply relative overflow-hidden rounded-lg px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.1em] text-white transition-all duration-300 ease-nature;
+  /* Mobile touch target minimum size */
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-enhanced-primary {
+  @apply btn-enhanced bg-sage;
+}
+
+.btn-enhanced-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-sage-hover) 0%, var(--color-sage) 100%);
+  transform: translateX(-100%);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.btn-enhanced-primary:hover,
+.btn-enhanced-primary:focus,
+.btn-enhanced-primary:active {
+  @apply shadow-lg shadow-sage/30 scale-[1.02];
+  outline: none;
+}
+
+.btn-enhanced-primary:hover::before,
+.btn-enhanced-primary:focus::before,
+.btn-enhanced-primary:active::before {
+  transform: translateX(0);
+}
+
+.btn-enhanced-secondary {
+  @apply btn-enhanced border border-white/20 bg-transparent;
+}
+
+.btn-enhanced-secondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(124, 140, 110, 0.2) 0%, rgba(143, 160, 127, 0.2) 100%);
+  transform: translateX(-100%);
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.btn-enhanced-secondary:hover,
+.btn-enhanced-secondary:focus,
+.btn-enhanced-secondary:active {
+  @apply border-white/40 bg-white/[0.05] shadow-lg shadow-white/5 scale-[1.02];
+  outline: none;
+}
+
+.btn-enhanced-secondary:hover::before,
+.btn-enhanced-secondary:focus::before,
+.btn-enhanced-secondary:active::before {
+  transform: translateX(0);
+}
+
+/* Mobile-specific button styles */
+@media (max-width: 768px) {
+  .btn-enhanced {
+    @apply px-6 py-4 text-[12px];
+    min-height: 48px;
+  }
+  
+  .touch-optimized.active {
+    transform: scale(0.95);
+  }
+}
+
 /* Image hover scale */
 .img-hover-scale {
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -381,6 +696,16 @@
   background: rgba(26, 26, 23, 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+}
+
+/* Breathing scale for ambient elements */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.animate-breathe {
+  animation: breathe 4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 /* Reduced motion support */

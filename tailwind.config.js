@@ -136,6 +136,13 @@ module.exports = {
       transitionTimingFunction: {
         'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
         'bounce': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'nature': 'cubic-bezier(0.25, 0.1, 0.25, 1.0)',
+        'nature-slow': 'cubic-bezier(0.16, 1, 0.3, 1)',
+      },
+      transitionDuration: {
+        '1200': '1200ms',
+        '1600': '1600ms',
+        '2000': '2000ms',
       },
     },
   },
